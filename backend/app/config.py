@@ -1,0 +1,22 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
+GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
+DATABASE_URL: str = os.getenv(
+    "DATABASE_URL",
+    "postgresql+psycopg2://postgres:postgres@localhost:5432/hr_automation",
+)
+DATA_RETENTION_DAYS: int = int(os.getenv("DATA_RETENTION_DAYS", "90"))
+MAX_UPLOAD_SIZE_MB: int = int(os.getenv("MAX_UPLOAD_SIZE_MB", "10"))
+MAX_CALL_RETRY_ATTEMPTS: int = int(os.getenv("MAX_CALL_RETRY_ATTEMPTS", "2"))
+
+UPLOAD_DIR = BASE_DIR / "uploads"
+SAMPLE_DATA_DIR = BASE_DIR / "sample_data"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+SAMPLE_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
