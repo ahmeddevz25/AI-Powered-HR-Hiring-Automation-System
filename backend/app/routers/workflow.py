@@ -18,6 +18,7 @@ from ..models import (
 )
 from ..schemas import (
     RequisitionCreate,
+    RequisitionUpdate,
     ShortlistDecisionRequest,
     ScreeningSimulationRequest,
     ScreeningReviewRequest,
@@ -29,6 +30,7 @@ from ..services.resume_parser import parse_resume_bytes
 from ..services.audit_service import log_audit_event
 from ..services.gemini_client import is_gemini_configured
 from ..services.seed_service import seed_demo_dataset, ensure_sample_files_on_disk
+from ..services.email_service import send_email_message, is_smtp_configured
 from ..agents.scoring_agent import score_resume_with_agent1
 from ..agents.screening_agent import run_screening_call_agent2, filter_approved_questions
 from ..agents.scheduling_agent import (
@@ -110,7 +112,10 @@ def serialize_candidate(cand: Candidate) -> dict:
             "confirmed_slot": int_obj.confirmed_slot,
             "timezone": int_obj.timezone,
             "meeting_details": int_obj.meeting_details,
+            "meeting_link": int_obj.meeting_link or (int_obj.meeting_details.get("meeting_link") if int_obj.meeting_details else ""),
             "email_draft": int_obj.email_draft,
+            "team_lead_email_draft": int_obj.team_lead_email_draft,
+            "team_lead_send_status": int_obj.team_lead_send_status,
             "approval_status": int_obj.approval_status,
             "approved_by": int_obj.approved_by,
             "approved_at": int_obj.approved_at.isoformat() if int_obj.approved_at else None,
@@ -177,6 +182,42 @@ def get_system_health(db: Session = Depends(get_db)):
         "requisitions_count": req_count,
         "candidates_count": cand_count,
         "sample_files": sample_files,
+    }
+
+
+@router.get("/settings/smtp-status")
+def get_smtp_status():
+    from ..config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM_EMAIL
+    return {
+        "host": SMTP_HOST,
+        "port": SMTP_PORT,
+        "user": SMTP_USER,
+        "password_configured": bool(SMTP_PASSWORD),
+        "from_email": SMTP_FROM_EMAIL,
+        "is_configured": bool(SMTP_HOST and SMTP_USER and SMTP_PASSWORD),
+    }
+
+
+@router.post("/settings/smtp-test")
+def test_smtp_connection(to_email: str = "test@example.com"):
+    from ..config import SMTP_PASSWORD
+    if not is_smtp_configured():
+        return {
+            "success": False,
+            "message": "SMTP is not fully configured because SMTP_PASSWORD is blank in backend/.env. Please enter your real Mailtrap password (unmasked).",
+            "provider_reference": "UNCONFIGURED",
+        }
+    ok, ref = send_email_message(
+        to_email=to_email,
+        subject="TalentSense Mailtrap SMTP Test Verification",
+        body_text="Congratulations! Your Mailtrap SMTP connection with TalentSense is active and verified.",
+        recipient_name="HR Recruiter",
+    )
+    is_real = "SMTP-DELIVERED" in ref
+    return {
+        "success": ok and is_real,
+        "provider_reference": ref,
+        "message": "Mailtrap test email dispatched successfully! Check your Mailtrap inbox." if is_real else f"SMTP test failed: {ref}",
     }
 
 
@@ -260,6 +301,9 @@ def list_requisitions(db: Session = Depends(get_db)):
                 "preferred_skills": r.preferred_skills,
                 "screening_questions": r.screening_questions,
                 "rubric": r.rubric,
+                "assigned_interviewer_id": r.assigned_interviewer_id or "INT-01",
+                "assigned_interviewer_name": r.assigned_interviewer_name or "Sarah Jenkins (Lead ML Engineer)",
+                "assigned_interviewer_email": r.assigned_interviewer_email or "sarah.jenkins@company.example",
                 "status": r.status,
                 "created_by": r.created_by,
                 "created_at": r.created_at.isoformat() if r.created_at else None,
@@ -288,6 +332,9 @@ def create_requisition(
         preferred_skills=payload.preferred_skills,
         screening_questions=questions,
         rubric=payload.rubric.model_dump(),
+        assigned_interviewer_id=payload.assigned_interviewer_id,
+        assigned_interviewer_name=payload.assigned_interviewer_name,
+        assigned_interviewer_email=payload.assigned_interviewer_email,
         status="Open",
         created_by=payload.created_by,
     )
@@ -303,9 +350,98 @@ def create_requisition(
         entity_type="Requisition",
         entity_id=req.requisition_id,
         requisition_id=req.requisition_id,
-        details={"title": req.title, "rubric": req.rubric},
+        details={
+            "title": req.title,
+            "department": req.department,
+            "assigned_interviewer": req.assigned_interviewer_name,
+            "rubric": req.rubric,
+        },
     )
-    return {"requisition_id": req.requisition_id, "title": req.title, "rubric": req.rubric}
+    return {
+        "requisition_id": req.requisition_id,
+        "title": req.title,
+        "assigned_interviewer_name": req.assigned_interviewer_name,
+        "rubric": req.rubric,
+    }
+
+
+@router.put("/requisitions/{requisition_id}")
+def update_requisition(
+    requisition_id: int,
+    payload: RequisitionUpdate,
+    x_user_role: str = Header(default="HR Recruiter"),
+    db: Session = Depends(get_db),
+):
+    """
+    Updates an existing job requisition's details, rubric weights, assigned team lead, or screening questions.
+    """
+    verify_authorized_role(x_user_role)
+    req = db.query(Requisition).filter(Requisition.requisition_id == requisition_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="Requisition not found.")
+
+    if payload.title is not None:
+        req.title = payload.title
+    if payload.department is not None:
+        req.department = payload.department
+    if payload.location_work_arrangement is not None:
+        req.location_work_arrangement = payload.location_work_arrangement
+    if payload.min_experience_years is not None:
+        req.min_experience_years = payload.min_experience_years
+    if payload.job_description is not None:
+        req.job_description = payload.job_description
+    if payload.required_skills is not None:
+        req.required_skills = payload.required_skills
+    if payload.preferred_skills is not None:
+        req.preferred_skills = payload.preferred_skills
+    if payload.screening_questions is not None:
+        req.screening_questions = filter_approved_questions(payload.screening_questions, req.title)
+    if payload.rubric is not None:
+        req.rubric = payload.rubric
+    if payload.assigned_interviewer_id is not None:
+        req.assigned_interviewer_id = payload.assigned_interviewer_id
+    if payload.assigned_interviewer_name is not None:
+        req.assigned_interviewer_name = payload.assigned_interviewer_name
+    if payload.assigned_interviewer_email is not None:
+        req.assigned_interviewer_email = payload.assigned_interviewer_email
+    if payload.status is not None:
+        req.status = payload.status
+
+    db.commit()
+    db.refresh(req)
+
+    log_audit_event(
+        db=db,
+        actor="Recruiter",
+        actor_role=x_user_role,
+        action="Updated Job Requisition & Rubric",
+        entity_type="Requisition",
+        entity_id=req.requisition_id,
+        requisition_id=req.requisition_id,
+        details={
+            "title": req.title,
+            "department": req.department,
+            "assigned_interviewer": req.assigned_interviewer_name,
+            "status": req.status,
+        },
+    )
+
+    return {
+        "requisition_id": req.requisition_id,
+        "title": req.title,
+        "department": req.department,
+        "location_work_arrangement": req.location_work_arrangement,
+        "min_experience_years": req.min_experience_years,
+        "job_description": req.job_description,
+        "required_skills": req.required_skills,
+        "preferred_skills": req.preferred_skills,
+        "screening_questions": req.screening_questions,
+        "rubric": req.rubric,
+        "assigned_interviewer_id": req.assigned_interviewer_id,
+        "assigned_interviewer_name": req.assigned_interviewer_name,
+        "assigned_interviewer_email": req.assigned_interviewer_email,
+        "status": req.status,
+    }
 
 
 @router.get("/requisitions/{requisition_id}")
@@ -335,6 +471,9 @@ def get_requisition_detail(requisition_id: int, db: Session = Depends(get_db)):
         "preferred_skills": req.preferred_skills,
         "screening_questions": req.screening_questions,
         "rubric": req.rubric,
+        "assigned_interviewer_id": req.assigned_interviewer_id or "INT-01",
+        "assigned_interviewer_name": req.assigned_interviewer_name or "Sarah Jenkins (Lead ML Engineer)",
+        "assigned_interviewer_email": req.assigned_interviewer_email or "sarah.jenkins@company.example",
         "status": req.status,
         "created_by": req.created_by,
         "created_at": req.created_at.isoformat() if req.created_at else None,
@@ -475,6 +614,46 @@ def record_human_shortlist_decision(
     if payload.decision in {"Approved", "Overridden"}:
         cand.current_status = "Approved for Screening"
         cand.status_reason = f"Human Gate #1 ({payload.decision} by {payload.actor}): {payload.reason}"
+
+        # Dispatch automated Screening Invitation Email to Candidate via Mailtrap/SMTP
+        screening_url = f"http://localhost:5173/screening-call?candidate_id={cand.candidate_id}"
+        role_title = cand.requisition.title if cand.requisition else "Applied Position"
+        email_subject = f"Next Steps: AI Voice Screening Invitation for {role_title} — TalentSense"
+        email_body = (
+            f"Dear {cand.name},\n\n"
+            f"Congratulations! Our recruiting team has reviewed your resume and profile for the '{role_title}' position and shortlisted your application.\n\n"
+            f"As the next step in our hiring process, you are invited to participate in a preliminary 5-minute interactive AI Voice Screening Call.\n\n"
+            f"👉 Click here to start your screening call:\n"
+            f"{screening_url}\n\n"
+            f"What to Expect:\n"
+            f"• Our AI Recruitment Assistant will ask you 3–4 role-related questions.\n"
+            f"• You can listen to the questions spoken aloud and speak your answers using your microphone.\n"
+            f"• Your spoken answers are transcribed in real time and recorded for our HR team to review.\n"
+            f"• Duration: Approximately 5 minutes.\n"
+            f"• Requirements: A quiet room and a working microphone.\n\n"
+            f"If you encounter any technical issues or need accommodations, please reply to this email.\n\n"
+            f"Best regards,\n"
+            f"TalentSense Recruiting Team\n"
+            f"recruiting@talentsense.ai"
+        )
+        is_sent, prov_ref = send_email_message(
+            to_email=cand.email,
+            subject=email_subject,
+            body_text=email_body,
+            recipient_name=cand.name,
+        )
+
+        comm = CommunicationLog(
+            candidate_id=cand.candidate_id,
+            channel="Email (Screening Invite)",
+            template_version="v1.0-screening-invite",
+            subject=email_subject,
+            body_preview=email_body[:300],
+            delivery_status="Delivered" if is_sent else "Pending",
+            provider_reference=prov_ref,
+            idempotency_key=f"SCREEN-INV-{cand.candidate_id}-{uuid.uuid4().hex[:6]}",
+        )
+        db.add(comm)
     elif payload.decision == "Declined":
         cand.current_status = "Closed"
         cand.status_reason = f"Closed at Shortlist Review by {payload.actor}: {payload.reason}"
@@ -508,6 +687,80 @@ def record_human_shortlist_decision(
     )
 
     return serialize_candidate(cand)
+
+
+@router.post("/candidates/{candidate_id}/screening/send-invite-email")
+def send_screening_invite_email(
+    candidate_id: int,
+    x_user_role: str = Header(default="HR Recruiter"),
+    db: Session = Depends(get_db),
+):
+    """
+    Explicitly sends/resends the Screening Call Invitation Email to the candidate via SMTP / Mailtrap.
+    """
+    verify_authorized_role(x_user_role)
+    cand = db.query(Candidate).filter(Candidate.candidate_id == candidate_id).first()
+    if not cand:
+        raise HTTPException(status_code=404, detail="Candidate not found.")
+
+    screening_url = f"http://localhost:5173/screening-call?candidate_id={cand.candidate_id}"
+    role_title = cand.requisition.title if cand.requisition else "Applied Position"
+    email_subject = f"Next Steps: AI Voice Screening Invitation for {role_title} — TalentSense"
+    email_body = (
+        f"Dear {cand.name},\n\n"
+        f"Congratulations! Our recruiting team has reviewed your application for the '{role_title}' position and shortlisted your profile.\n\n"
+        f"As the next step, you are invited to participate in a preliminary 5-minute interactive AI Voice Screening Call.\n\n"
+        f"👉 Click here to start your screening call:\n"
+        f"{screening_url}\n\n"
+        f"What to Expect:\n"
+        f"• Our AI assistant will ask 3–4 role-related questions.\n"
+        f"• You can listen to the questions spoken aloud and speak your answers using your microphone.\n"
+        f"• Estimated duration: ~5 minutes.\n"
+        f"• Requirements: A quiet room and a working microphone.\n\n"
+        f"Best regards,\n"
+        f"TalentSense Recruiting Team\n"
+        f"recruiting@talentsense.ai"
+    )
+    is_sent, prov_ref = send_email_message(
+        to_email=cand.email,
+        subject=email_subject,
+        body_text=email_body,
+        recipient_name=cand.name,
+    )
+
+    comm = CommunicationLog(
+        candidate_id=cand.candidate_id,
+        channel="Email (Screening Invite)",
+        template_version="v1.0-screening-invite",
+        subject=email_subject,
+        body_preview=email_body[:300],
+        delivery_status="Delivered" if is_sent else "Pending",
+        provider_reference=prov_ref,
+        idempotency_key=f"SCREEN-INV-{cand.candidate_id}-{uuid.uuid4().hex[:6]}",
+    )
+    db.add(comm)
+    db.commit()
+    db.refresh(cand)
+
+    log_audit_event(
+        db=db,
+        actor="HR Recruiter",
+        actor_role=x_user_role,
+        action="Dispatched Screening Call Invitation Email",
+        entity_type="Candidate",
+        entity_id=cand.candidate_id,
+        candidate_id=cand.candidate_id,
+        requisition_id=cand.requisition_id,
+        details={"recipient": cand.email, "delivery_reference": prov_ref},
+    )
+
+    return {
+        "message": f"Screening invitation email sent to {cand.email}!",
+        "provider_reference": prov_ref,
+        "is_smtp_delivered": "SMTP-DELIVERED" in prov_ref,
+        "screening_url": screening_url,
+        "candidate": serialize_candidate(cand),
+    }
 
 
 @router.post("/candidates/{candidate_id}/screening/run")
@@ -727,11 +980,15 @@ def propose_interview_slots(
         cand.timezone = payload.candidate_timezone
 
     stated_avail = cand.screening.candidate_stated_availability if cand.screening else "Weekdays 10:00 AM - 4:00 PM"
+    interviewer_id_to_use = payload.interviewer_id
+    if (not interviewer_id_to_use or interviewer_id_to_use == "INT-01") and cand.requisition and cand.requisition.assigned_interviewer_id:
+        interviewer_id_to_use = cand.requisition.assigned_interviewer_id
+
     proposal = propose_slots_with_agent3(
         candidate_name=cand.name,
         candidate_timezone=cand.timezone,
         candidate_stated_availability=stated_avail,
-        interviewer_id=payload.interviewer_id,
+        interviewer_id=interviewer_id_to_use,
         duration_minutes=payload.duration_minutes,
     )
 
@@ -816,6 +1073,8 @@ def draft_interview_invitation(
             detail=f"Slot '{payload.slot_id}' is not in the verified proposed slots list (AC-07).",
         )
 
+    eval_text = cand.evaluation.recommendation_for_human_review if cand.evaluation else ""
+    screen_text = cand.screening.concise_summary if cand.screening else ""
     draft_data = draft_invitation_email_agent3(
         candidate_name=cand.name,
         candidate_email=cand.email,
@@ -823,11 +1082,17 @@ def draft_interview_invitation(
         interviewer_name=interview_obj.interviewer_name,
         interviewer_email=interview_obj.interviewer_email,
         selected_slot=matching_slot,
+        candidate_id=cand.candidate_id,
+        candidate_phone=cand.phone or "+92-300-0000000",
+        eval_summary=eval_text,
+        screening_summary=screen_text,
     )
 
     interview_obj.confirmed_slot = matching_slot
     interview_obj.meeting_details = draft_data["meeting_details"]
+    interview_obj.meeting_link = draft_data.get("meeting_link", "")
     interview_obj.email_draft = payload.custom_email_body or draft_data["email_draft"]
+    interview_obj.team_lead_email_draft = getattr(payload, "custom_team_lead_body", None) or draft_data.get("team_lead_email_draft", "")
     interview_obj.approval_status = "Pending HR Confirmation"
     interview_obj.status = "Draft Ready for Approval"
 
@@ -838,7 +1103,7 @@ def draft_interview_invitation(
         db=db,
         actor="Agent 3 (Interview Scheduling Agent)",
         actor_role="AI Agent",
-        action="Prepared Interview Invitation Draft (Awaiting Gate #3 Approval)",
+        action="Prepared Interview Invitation & Team Lead Briefing Draft (Awaiting Gate #3 Approval)",
         entity_type="Interview",
         entity_id=interview_obj.interview_id,
         candidate_id=cand.candidate_id,
@@ -847,6 +1112,7 @@ def draft_interview_invitation(
             "slot_id": matching_slot["slot_id"],
             "candidate_local_time": matching_slot["candidate_local_time"],
             "interviewer_local_time": matching_slot["interviewer_local_time"],
+            "meeting_link": interview_obj.meeting_link,
         },
     )
 
@@ -862,7 +1128,8 @@ def approve_and_send_invitation(
 ):
     """
     Human Approval Gate #3 (FR-11, AC-08, AC-10):
-    Requires explicit human confirmation before sending the interview invitation.
+    Requires explicit human confirmation before sending interview invitations.
+    Sends customized emails to both Candidate (with join link) and Team Lead (with briefing).
     Enforces idempotency so retries or double-clicks never send duplicate invitations.
     """
     verify_authorized_role(x_user_role)
@@ -893,6 +1160,8 @@ def approve_and_send_invitation(
 
     if payload.custom_email_body:
         interview_obj.email_draft = payload.custom_email_body
+    if payload.custom_team_lead_body:
+        interview_obj.team_lead_email_draft = payload.custom_team_lead_body
 
     # Edge Case: Email Provider Failure (Section 14 & AC-10)
     if payload.simulate_email_failure:
@@ -900,6 +1169,7 @@ def approve_and_send_invitation(
         interview_obj.approved_by = payload.actor
         interview_obj.approved_at = utcnow()
         interview_obj.send_status = "Failed"
+        interview_obj.team_lead_send_status = "Failed"
         db.commit()
         db.refresh(cand)
 
@@ -916,14 +1186,38 @@ def approve_and_send_invitation(
         )
         raise HTTPException(
             status_code=502,
-            detail="Email Provider Failure (Simulated 502): Invitation was NOT sent. Email draft and approval have been retained for a safe retry.",
+            detail="Email Provider Failure (Simulated 502): Invitation was NOT sent. Email drafts and approval have been retained for a safe retry.",
         )
+
+    # 1. Send Candidate Email via SMTP / Adapter
+    cand_subject = f"Interview Invitation: {cand.requisition.title} — {cand.name}"
+    cand_ok, cand_ref = send_email_message(
+        to_email=cand.email,
+        subject=cand_subject,
+        body_text=interview_obj.email_draft,
+        recipient_name=cand.name,
+    )
+
+    # 2. Send Team Lead Email via SMTP / Adapter
+    lead_email = interview_obj.interviewer_email or (cand.requisition.assigned_interviewer_email if cand.requisition else "lead@company.example")
+    lead_subject = f"Candidate Interview Briefing: {cand.name} for {cand.requisition.title}"
+    lead_body = interview_obj.team_lead_email_draft or (
+        f"Hi {interview_obj.interviewer_name},\n\nYou have an upcoming interview scheduled with {cand.name}.\n"
+        f"Meeting Link: {interview_obj.meeting_link}\nTime: {interview_obj.confirmed_slot.get('interviewer_local_time')}"
+    )
+    lead_ok, lead_ref = send_email_message(
+        to_email=lead_email,
+        subject=lead_subject,
+        body_text=lead_body,
+        recipient_name=interview_obj.interviewer_name,
+    )
 
     msg_id = f"MSG-{uuid.uuid4().hex[:10].upper()}"
     interview_obj.approval_status = "Approved"
     interview_obj.approved_by = payload.actor
     interview_obj.approved_at = utcnow()
     interview_obj.send_status = "Sent"
+    interview_obj.team_lead_send_status = "Sent"
     interview_obj.provider_message_id = msg_id
     interview_obj.idempotency_key = idem_key
     interview_obj.sent_at = utcnow()
@@ -931,20 +1225,33 @@ def approve_and_send_invitation(
 
     cand.current_status = "Interview Scheduled"
     cand.status_reason = (
-        f"Human Gate #3 Approved by {payload.actor}. Invitation sent ({interview_obj.confirmed_slot['candidate_local_time']})."
+        f"Human Gate #3 Approved by {payload.actor}. Invitations sent to Candidate ({interview_obj.confirmed_slot['candidate_local_time']}) and Team Lead ({interview_obj.interviewer_name})."
     )
 
-    comm = CommunicationLog(
+    # Communication log for candidate
+    comm_cand = CommunicationLog(
         candidate_id=cand.candidate_id,
-        channel="Email (Mock Adapter)",
+        channel="Email (Candidate)",
         template_version="v1.0-interview-invite",
-        subject=f"Interview Invitation: {cand.requisition.title} — {cand.name}",
+        subject=cand_subject,
         body_preview=interview_obj.email_draft[:300],
-        delivery_status="Delivered",
-        provider_reference=msg_id,
-        idempotency_key=idem_key,
+        delivery_status="Delivered" if cand_ok else "Pending",
+        provider_reference=cand_ref or msg_id,
+        idempotency_key=f"{idem_key}-candidate",
     )
-    db.add(comm)
+    # Communication log for team lead
+    comm_lead = CommunicationLog(
+        candidate_id=cand.candidate_id,
+        channel="Email (Team Lead)",
+        template_version="v1.0-team-lead-briefing",
+        subject=lead_subject,
+        body_preview=lead_body[:300],
+        delivery_status="Delivered" if lead_ok else "Pending",
+        provider_reference=lead_ref or msg_id,
+        idempotency_key=f"{idem_key}-lead",
+    )
+    db.add(comm_cand)
+    db.add(comm_lead)
     db.commit()
     db.refresh(cand)
 
@@ -952,7 +1259,7 @@ def approve_and_send_invitation(
         db=db,
         actor=payload.actor,
         actor_role=x_user_role,
-        action="Human Gate #3: Approved & Sent Interview Invitation",
+        action="Human Gate #3: Approved & Sent Dual Interview Invitations",
         entity_type="Interview",
         entity_id=interview_obj.interview_id,
         candidate_id=cand.candidate_id,
@@ -960,14 +1267,55 @@ def approve_and_send_invitation(
         details={
             "provider_message_id": msg_id,
             "idempotency_key": idem_key,
+            "candidate_email": cand.email,
+            "team_lead_email": lead_email,
             "confirmed_slot": interview_obj.confirmed_slot["candidate_local_time"],
         },
     )
 
     return {
         "idempotent_replay": False,
-        "message": "Interview invitation approved and sent successfully.",
+        "message": "Interview invitations sent successfully to both Candidate and Team Lead.",
         "candidate": serialize_candidate(cand),
+    }
+
+
+@router.get("/interviews/{candidate_id}/room-details")
+def get_interview_room_details(candidate_id: int, db: Session = Depends(get_db)):
+    """
+    Returns full room briefing and details for the Virtual Interview Room session.
+    """
+    cand = db.query(Candidate).filter(Candidate.candidate_id == candidate_id).first()
+    if not cand:
+        raise HTTPException(status_code=404, detail="Candidate not found.")
+
+    interview = cand.interview
+    req = cand.requisition
+    eval_obj = cand.evaluation
+    scr_obj = cand.screening
+
+    room_url = interview.meeting_link if interview and interview.meeting_link else f"http://localhost:5173/interview-room?interview_id={cand.candidate_id}"
+
+    return {
+        "candidate_id": cand.candidate_id,
+        "candidate_name": cand.name,
+        "candidate_email": cand.email,
+        "candidate_phone": cand.phone,
+        "job_title": req.title if req else "Applied Position",
+        "department": req.department if req else "Engineering",
+        "interviewer_name": interview.interviewer_name if interview else (req.assigned_interviewer_name if req else "Team Lead"),
+        "interviewer_email": interview.interviewer_email if interview else (req.assigned_interviewer_email if req else "lead@company.example"),
+        "interviewer_timezone": interview.interviewer_timezone if interview else "Asia/Karachi",
+        "meeting_link": room_url,
+        "confirmed_slot": interview.confirmed_slot if interview else None,
+        "candidate_score": eval_obj.total_score if eval_obj else None,
+        "score_recommendation": eval_obj.recommendation_for_human_review if eval_obj else None,
+        "criterion_scores": eval_obj.criterion_scores if eval_obj else {},
+        "resume_evidence": eval_obj.evidence if eval_obj else [],
+        "screening_summary": scr_obj.concise_summary if scr_obj else None,
+        "screening_qa": scr_obj.question_answer_pairs if scr_obj else [],
+        "rubric": req.rubric if req else None,
+        "interview_status": interview.status if interview else "Not Scheduled",
     }
 
 
@@ -1331,6 +1679,7 @@ def get_candidate_portal_status(email: str, db: Session = Depends(get_db)):
                     "interviewer_name": intv.interviewer_name,
                     "confirmed_slot": intv.confirmed_slot,
                     "meeting_details": intv.meeting_details,
+                    "meeting_link": intv.meeting_link or f"http://localhost:5173/interview-room?candidate_id={c.candidate_id}",
                     "email_draft": intv.email_draft,
                 }
                 if (intv and c.current_status == "Interview Scheduled")
@@ -1353,7 +1702,7 @@ def candidate_complete_self_screening(
     cand = db.query(Candidate).filter(Candidate.candidate_id == candidate_id).first()
     if not cand:
         raise HTTPException(status_code=404, detail="Application not found.")
-    if cand.current_status not in {"Approved for Screening", "Screening Scheduled / Pending"}:
+    if cand.current_status not in {"Approved for Screening", "Screening Scheduled / Pending", "Screening Completed — HR Review"}:
         raise HTTPException(
             status_code=400,
             detail="Screening call is only available after an HR Recruiter approves your shortlist application.",
@@ -1365,5 +1714,30 @@ def candidate_complete_self_screening(
         x_user_role="HR Recruiter",
         db=db,
     )
+
+
+@router.get("/public/candidates/{candidate_id}/screening-brief")
+def get_candidate_screening_brief(candidate_id: int, db: Session = Depends(get_db)):
+    """
+    Returns candidate and approved screening questions for the candidate-facing Voice AI Screening Room.
+    """
+    cand = db.query(Candidate).filter(Candidate.candidate_id == candidate_id).first()
+    if not cand:
+        raise HTTPException(status_code=404, detail="Application not found.")
+
+    req = cand.requisition
+    scr = cand.screening
+
+    return {
+        "candidate_id": cand.candidate_id,
+        "name": cand.name,
+        "email": cand.email,
+        "job_title": req.title if req else "Applied Position",
+        "department": req.department if req else "",
+        "current_status": cand.current_status,
+        "screening_questions": req.screening_questions if req else [],
+        "screening_completed": scr is not None and str(scr.call_status).startswith("Completed"),
+        "concise_summary": scr.concise_summary if scr else None,
+    }
 
 

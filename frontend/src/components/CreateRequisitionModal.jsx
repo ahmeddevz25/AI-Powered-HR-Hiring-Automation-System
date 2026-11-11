@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { X, Sliders, Briefcase, Sparkles, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { X, Sliders, Briefcase, Sparkles, Plus, Trash2, CheckCircle2, UserCheck } from 'lucide-react';
+
+export const AVAILABLE_INTERVIEWERS = [
+  { id: 'INT-01', name: 'Sarah Jenkins (Lead ML Engineer)', email: 'sarah.jenkins@company.example', dept: 'Applied AI & ML' },
+  { id: 'INT-02', name: 'David Chen (Director of Platform Engineering)', email: 'david.chen@company.example', dept: 'Core Cloud & Platform' },
+  { id: 'INT-03', name: 'Zainab Abbas (Head of Conversational AI)', email: 'zainab.abbas@company.example', dept: 'Voice & Conversational AI' },
+  { id: 'INT-04', name: 'Bilal Qureshi (Full-Stack Engineering Lead)', email: 'bilal.qureshi@company.example', dept: 'SaaS Product Engineering' },
+];
 
 export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
   const [title, setTitle] = useState('');
   const [department, setDepartment] = useState('');
   const [location, setLocation] = useState('Hybrid (Lahore / Remote)');
   const [minExp, setMinExp] = useState(1.5);
+  const [assignedInterviewerId, setAssignedInterviewerId] = useState('INT-01');
   const [jd, setJd] = useState('');
   const [reqSkills, setReqSkills] = useState('');
   const [prefSkills, setPrefSkills] = useState('');
@@ -36,6 +44,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
       department: 'Applied AI & LLM Lab',
       location: 'Hybrid (Lahore / Remote)',
       minExp: 2.0,
+      interviewerId: 'INT-01',
       jd: 'We are looking for a Generative AI Engineer to build explainable multi-agent workflows, RAG pipelines, and FastAPI microservices. You will design structured LLM outputs, prompt-injection guardrails, and evaluation suites.',
       reqSkills: 'Python, Machine Learning, FastAPI, SQL',
       prefSkills: 'LangChain, RAG, Docker, PyTorch, Gemini API',
@@ -52,6 +61,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
       department: 'Core Platform & APIs',
       location: 'Remote (Global / Anywhere)',
       minExp: 3.0,
+      interviewerId: 'INT-02',
       jd: 'Design and scale high-reliability Python and FastAPI backend services backed by PostgreSQL. Own API architecture, idempotent background jobs, audit logging, and third-party calendar/email integrations.',
       reqSkills: 'Python, FastAPI, PostgreSQL, SQL',
       prefSkills: 'Docker, Redis, AWS, Pytest, Microservices',
@@ -67,6 +77,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
       department: 'SaaS Product Engineering',
       location: 'Hybrid (Islamabad / Remote)',
       minExp: 2.0,
+      interviewerId: 'INT-04',
       jd: 'Build clean, high-contrast SaaS admin dashboards, interactive candidate portals, and real-time analytics views using React, Tailwind CSS, and modern REST APIs.',
       reqSkills: 'React, JavaScript, Tailwind CSS, REST APIs',
       prefSkills: 'TypeScript, Vite, UI/UX Design, Node.js',
@@ -82,6 +93,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
       department: 'Data & Decision Science',
       location: 'Hybrid (Karachi / Remote)',
       minExp: 1.5,
+      interviewerId: 'INT-01',
       jd: 'Develop predictive scoring models, feature engineering pipelines, and fairness validation metrics using Python, SQL, and Scikit-Learn.',
       reqSkills: 'Python, Machine Learning, SQL, Scikit-Learn',
       prefSkills: 'Pandas, PyTorch, Data Visualization, FastAPI',
@@ -98,6 +110,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
     setDepartment(tpl.department);
     setLocation(tpl.location);
     setMinExp(tpl.minExp);
+    if (tpl.interviewerId) setAssignedInterviewerId(tpl.interviewerId);
     setJd(tpl.jd);
     setReqSkills(tpl.reqSkills);
     setPrefSkills(tpl.prefSkills);
@@ -130,6 +143,9 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
     }
     setSubmitting(true);
     try {
+      const interviewer =
+        AVAILABLE_INTERVIEWERS.find((i) => i.id === assignedInterviewerId) || AVAILABLE_INTERVIEWERS[0];
+
       await onCreate({
         title: title.trim(),
         department: department.trim() || 'Engineering',
@@ -145,6 +161,9 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
           .map((s) => s.trim())
           .filter(Boolean),
         screening_questions: questionsList.filter(Boolean),
+        assigned_interviewer_id: interviewer.id,
+        assigned_interviewer_name: interviewer.name,
+        assigned_interviewer_email: interviewer.email,
         rubric: {
           required_skills: Number(rubric.required_skills),
           relevant_experience: Number(rubric.relevant_experience),
@@ -301,6 +320,29 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
                   className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-blue-700 font-bold">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  Assign Department Team Lead / Interviewer *
+                </span>
+                <span className="text-[11px] text-slate-400 font-normal">
+                  Assigned automatically for technical interviews & briefing emails
+                </span>
+              </label>
+              <select
+                value={assignedInterviewerId}
+                onChange={(e) => setAssignedInterviewerId(e.target.value)}
+                className="w-full rounded-xl bg-blue-50/50 border border-blue-200 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              >
+                {AVAILABLE_INTERVIEWERS.map((lead) => (
+                  <option key={lead.id} value={lead.id}>
+                    {lead.name} · {lead.email} ({lead.dept})
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>

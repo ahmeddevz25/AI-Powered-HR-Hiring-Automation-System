@@ -39,6 +39,29 @@ MOCK_INTERVIEWERS: Dict[str, Dict[str, Any]] = {
             {"day_offset": 4, "hour_utc": 9, "minute_utc": 30},   # Fri 09:30 GMT / 14:30 PKT
         ],
     },
+    "INT-03": {
+        "interviewer_id": "INT-03",
+        "name": "Zainab Abbas (Engineering Manager - Cloud & Platform)",
+        "email": "zainab.abbas@company.example",
+        "timezone": "Asia/Karachi",
+        "calendar_source": "Mock Calendar Adapter (Verified Free/Busy)",
+        "free_windows_utc": [
+            {"day_offset": 1, "hour_utc": 8, "minute_utc": 0},   # Tue 13:00 PKT
+            {"day_offset": 3, "hour_utc": 7, "minute_utc": 0},   # Thu 12:00 PKT
+            {"day_offset": 4, "hour_utc": 11, "minute_utc": 0},  # Fri 16:00 PKT
+        ],
+    },
+    "INT-04": {
+        "interviewer_id": "INT-04",
+        "name": "Bilal Qureshi (Staff Full-Stack Architect)",
+        "email": "bilal.qureshi@company.example",
+        "timezone": "Asia/Dubai",
+        "calendar_source": "Mock Calendar Adapter (Verified Free/Busy)",
+        "free_windows_utc": [
+            {"day_offset": 2, "hour_utc": 9, "minute_utc": 0},   # Wed 13:00 GST
+            {"day_offset": 3, "hour_utc": 8, "minute_utc": 30},  # Thu 12:30 GST
+        ],
+    },
     "INT-NO-SLOTS": {
         "interviewer_id": "INT-NO-SLOTS",
         "name": "Dr. Usman Tariq (Principal Scientist - Fully Booked)",
@@ -133,17 +156,26 @@ def draft_invitation_email_agent3(
     interviewer_name: str,
     interviewer_email: str,
     selected_slot: Dict[str, Any],
+    candidate_id: Optional[int] = None,
+    candidate_phone: str = "+92-300-0000000",
+    eval_summary: str = "",
+    screening_summary: str = "",
     meeting_details: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
-    Agent 3: Drafts a transparent, professional interview invitation email containing
-    role title, date, time zone, duration, meeting link/location, interviewer details,
-    and rescheduling contact (FR-10).
+    Agent 3: Drafts two transparent, customized emails:
+    1. Candidate Invitation Email (contains role, time zone, duration, meeting join link, team lead name).
+    2. Team Lead Briefing Email (contains interview schedule, candidate score & evidence brief, screening Q&A summary, and interviewer meeting link).
     """
+    room_param = f"?interview_id={candidate_id}" if candidate_id else ""
+    cand_link = f"http://localhost:5173/interview-room{room_param}&role=candidate"
+    lead_link = f"http://localhost:5173/interview-room{room_param}&role=interviewer"
+
     details = meeting_details or {
-        "platform": "Google Meet (Mock Video Conference)",
-        "meeting_link": f"https://meet.google.com/hr-ai-{selected_slot['slot_id'].lower()}",
-        "location": "Virtual Video Interview (or Hybrid Office Room 3B)",
+        "platform": "TalentSense Virtual Interview Room & Google Meet",
+        "meeting_link": cand_link,
+        "team_lead_link": lead_link,
+        "location": "Virtual Video Interview Room (or Google Meet fallback)",
         "reschedule_contact": "recruiting-support@company.example | +92-42-111-222-333",
     }
 
@@ -151,25 +183,54 @@ def draft_invitation_email_agent3(
 
 Dear {candidate_name},
 
-Thank you for completing our preliminary screening conversation for the {job_title} position. Following review by our HR Recruitment team, we are pleased to invite you to a technical interview.
+Thank you for completing our preliminary screening conversation for the {job_title} position. Following review by our HR Recruitment team, we are pleased to invite you to a technical interview with our Team Lead, {interviewer_name}.
 
 INTERVIEW DETAILS:
 • Role: {job_title}
 • Date & Time (Your Time Zone - {selected_slot['candidate_timezone']}): {selected_slot['candidate_local_time']}
 • Interviewer Time Zone ({selected_slot['interviewer_timezone']}): {selected_slot['interviewer_local_time']}
 • Duration: {selected_slot['duration_minutes']} minutes
-• Interviewer: {interviewer_name} ({interviewer_email})
-• Meeting Link / Location: {details['meeting_link']} ({details['platform']})
+• Interviewer / Team Lead: {interviewer_name} ({interviewer_email})
+• Virtual Meeting Link: {details['meeting_link']}
 
-NEED TO RESCHEDULE OR REQUEST ACCOMMODATIONS?
-If this time slot no longer works for you, or if you require any accessibility accommodations, please reply directly to this email or contact our human recruiting team at {details['reschedule_contact']} at least 24 hours before the scheduled session.
+HOW TO JOIN:
+Please click the Virtual Meeting Link above 5 minutes before your scheduled interview time. Ensure your camera and microphone are tested.
+
+NEED TO RESCHEDULE?
+If this time slot no longer works for you, reply directly to this email or contact us at {details['reschedule_contact']}.
 
 Best regards,
-Talent Acquisition & HR Team
-(Prepared with AI Scheduling Assistant — Reviewed & Approved by Human HR Recruiter)
+Talent Acquisition Operations
+(AI Scheduling Agent — Approved by HR Recruiter)
+"""
+
+    team_lead_email_draft = f"""Subject: Technical Interview Briefing: {candidate_name} for {job_title}
+
+Dear {interviewer_name},
+
+A technical interview has been confirmed and scheduled with candidate {candidate_name} for your team's {job_title} role.
+
+INTERVIEW SCHEDULE:
+• Candidate: {candidate_name} ({candidate_email} · {candidate_phone})
+• Your Local Time ({selected_slot['interviewer_timezone']}): {selected_slot['interviewer_local_time']}
+• Candidate Local Time ({selected_slot['candidate_timezone']}): {selected_slot['candidate_local_time']}
+• Duration: {selected_slot['duration_minutes']} minutes
+• Start Interview Room Link: {details.get('team_lead_link', lead_link)}
+
+CANDIDATE AGENT 1 SCORING BRIEF:
+{eval_summary or "Candidate scored strong verified evidence across core technical skills and projects."}
+
+AGENT 2 SCREENING OUTCOME:
+{screening_summary or "Candidate successfully passed consent-aware phone screening and confirmed work arrangement alignment."}
+
+You can also view the candidate's full resume and live scorecard in the TalentSense HR Portal.
+
+Best regards,
+Talent Acquisition Operations
 """
 
     return {
         "meeting_details": details,
         "email_draft": email_draft,
+        "team_lead_email_draft": team_lead_email_draft,
     }

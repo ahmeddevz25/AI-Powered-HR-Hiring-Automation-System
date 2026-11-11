@@ -37,6 +37,25 @@ class RequisitionCreate(BaseModel):
     screening_questions: List[str] = Field(default_factory=list)
     rubric: RubricWeights = Field(default_factory=RubricWeights)
     created_by: str = "HR Recruiter"
+    assigned_interviewer_id: str = "INT-01"
+    assigned_interviewer_name: str = "Sarah Jenkins (Lead ML Engineer)"
+    assigned_interviewer_email: str = "sarah.jenkins@company.example"
+
+
+class RequisitionUpdate(BaseModel):
+    title: Optional[str] = None
+    department: Optional[str] = None
+    location_work_arrangement: Optional[str] = None
+    min_experience_years: Optional[float] = None
+    job_description: Optional[str] = None
+    required_skills: Optional[List[str]] = None
+    preferred_skills: Optional[List[str]] = None
+    screening_questions: Optional[List[str]] = None
+    rubric: Optional[Dict[str, Any]] = None
+    assigned_interviewer_id: Optional[str] = None
+    assigned_interviewer_name: Optional[str] = None
+    assigned_interviewer_email: Optional[str] = None
+    status: Optional[str] = None
 
 
 class CriterionBreakdown(BaseModel):
@@ -91,6 +110,7 @@ class SlotProposalRequest(BaseModel):
 class InvitationDraftRequest(BaseModel):
     slot_id: str
     custom_email_body: Optional[str] = None
+    custom_team_lead_body: Optional[str] = None
     actor: str = "HR Recruiter"
 
 
@@ -100,5 +120,7 @@ class SendInvitationApprovalRequest(BaseModel):
     actor_role: str = "HR Recruiter"
     idempotency_key: Optional[str] = None
     custom_email_body: Optional[str] = None
+    custom_team_lead_body: Optional[str] = None
     simulate_email_failure: bool = False
+    send_real_smtp: bool = False
 

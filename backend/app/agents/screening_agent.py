@@ -169,10 +169,16 @@ def run_screening_call_agent2(
         "Could you share more about the team structure and what the first 90 days look like for this role?",
     ]
 
+    consent_answer = (
+        custom_answers.get("consent").strip()
+        if (custom_answers and custom_answers.get("consent") and custom_answers.get("consent").strip())
+        else "Yes, I understand this is an AI assistant and I consent to recording and transcription for HR review."
+    )
+
     qa_pairs = [
         {
             "question": "AI Disclosure & Recording Consent Prompt",
-            "candidate_answer": "Yes, I understand this is an AI assistant and I consent to recording and transcription for HR review.",
+            "candidate_answer": consent_answer,
             "status": "Consent Granted",
             "agent_note": "Explicit recording & transcription consent logged with timestamp.",
         }

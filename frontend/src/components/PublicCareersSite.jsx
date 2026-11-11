@@ -14,9 +14,22 @@ import {
   X,
   Building2,
   CheckCircle2,
+  User,
+  LogOut,
+  RefreshCw,
+  Video,
+  ExternalLink,
+  Check,
 } from 'lucide-react';
 import { api } from '../api/client';
 import StatusBadge from './StatusBadge';
+
+const SAMPLE_APPLICANTS = [
+  { name: 'Muhammad Ahmed', email: 'ahmednadeemryk20@gmail.com', role: 'AI / Machine Learning Engineer' },
+  { name: 'Ayesha Siddiqui', email: 'ayesha.siddiqui@example.com', role: 'AI / Machine Learning Engineer' },
+  { name: 'Bilal Ahmed', email: 'bilal.ahmed@example.com', role: 'AI / Machine Learning Engineer' },
+  { name: 'Hamza Malik', email: 'hamza.malik@example.com', role: 'AI / Machine Learning Engineer' },
+];
 
 export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNavigateAdmin }) {
   const [publicTab, setPublicTab] = useState('jobs'); // 'jobs' | 'tracker'
@@ -24,6 +37,20 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJob, setSelectedJob] = useState(null);
   const [applyModalJob, setApplyModalJob] = useState(null);
+  const [loadingJobs, setLoadingJobs] = useState(true);
+  const [jobLoadError, setJobLoadError] = useState(null);
+
+  // Candidate Session State (Persisted in localStorage)
+  const [candidateUser, setCandidateUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('talentsense_candidate_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [showCandidateLoginModal, setShowCandidateLoginModal] = useState(false);
+  const [modalLoginEmail, setModalLoginEmail] = useState('');
 
   // Apply Form State
   const [candName, setCandName] = useState('');
@@ -35,7 +62,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
   const [applyFeedback, setApplyFeedback] = useState(null);
 
   // Candidate Tracker State
-  const [lookupEmail, setLookupEmail] = useState('ayesha.siddiqui@example.com');
+  const [lookupEmail, setLookupEmail] = useState(candidateUser?.email || 'ahmednadeemryk20@gmail.com');
   const [myApplications, setMyApplications] = useState([]);
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [portalMessage, setPortalMessage] = useState(null);
@@ -43,20 +70,49 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
   const [screeningAvail, setScreeningAvail] = useState('Tuesday or Wednesday, 11:00 AM - 4:00 PM PKT');
 
   const loadJobs = async () => {
+    setLoadingJobs(true);
+    setJobLoadError(null);
     try {
       const list = await api.listPublicJobs();
-      setJobs(list);
-      if (list.length > 0 && !selectedJob) {
-        setSelectedJob(list[0]);
+      const safeList = Array.isArray(list) ? list : [];
+      setJobs(safeList);
+      if (safeList.length > 0) {
+        setSelectedJob((prev) => (prev && safeList.some((j) => j.requisition_id === prev.requisition_id) ? prev : safeList[0]));
       }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load public jobs:', err);
+      setJobLoadError(err.message || 'Failed to load jobs from server');
+    } finally {
+      setLoadingJobs(false);
     }
   };
 
   useEffect(() => {
     loadJobs();
+    if (candidateUser?.email) {
+      handleLookupApplications(candidateUser.email);
+    }
   }, []);
+
+  const handleCandidateLogin = (email, name = '') => {
+    if (!email) return;
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanName = name || cleanEmail.split('@')[0];
+    const userObj = { email: cleanEmail, name: cleanName };
+    setCandidateUser(userObj);
+    localStorage.setItem('talentsense_candidate_user', JSON.stringify(userObj));
+    setLookupEmail(cleanEmail);
+    setShowCandidateLoginModal(false);
+    setPublicTab('tracker');
+    handleLookupApplications(cleanEmail);
+  };
+
+  const handleCandidateLogout = () => {
+    setCandidateUser(null);
+    localStorage.removeItem('talentsense_candidate_user');
+    setMyApplications([]);
+    setPortalMessage(null);
+  };
 
   const handleLookupApplications = async (emailToSearch = lookupEmail) => {
     if (!emailToSearch) return;
@@ -68,8 +124,13 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
       if (res.length === 0) {
         setPortalMessage({
           type: 'info',
-          text: `No applications found for "${emailToSearch}". Apply to an open job or click a sample applicant below.`,
+          text: `No applications found for "${emailToSearch}". You can apply for any open role or test with a sample applicant.`,
         });
+      } else {
+        const first = res[0];
+        const userObj = { email: first.email, name: first.name };
+        setCandidateUser(userObj);
+        localStorage.setItem('talentsense_candidate_user', JSON.stringify(userObj));
       }
     } catch (err) {
       setPortalMessage({ type: 'error', text: err.message });
@@ -93,15 +154,21 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
       });
       setApplyFeedback({
         type: 'success',
-        text: `Application submitted! Redirecting to your application tracker...`,
+        text: `Application submitted! Signing you into your candidate portal...`,
       });
-      setLookupEmail(res.email);
+      const userObj = {
+        name: candName.trim() || res.candidate_name || 'Candidate',
+        email: (res.email || candEmail).trim().toLowerCase(),
+      };
+      setCandidateUser(userObj);
+      localStorage.setItem('talentsense_candidate_user', JSON.stringify(userObj));
+      setLookupEmail(userObj.email);
       setTimeout(() => {
         setApplyModalJob(null);
         setApplyFeedback(null);
         setPublicTab('tracker');
-        handleLookupApplications(res.email);
-      }, 1200);
+        handleLookupApplications(userObj.email);
+      }, 1000);
     } catch (err) {
       setApplyFeedback({ type: 'error', text: err.message });
     } finally {
@@ -136,12 +203,19 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
     }
   };
 
-  const filteredJobs = jobs.filter(
-    (j) =>
-      j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      j.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (j.required_skills || []).some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredJobs = jobs.filter((j) => {
+    const q = (searchQuery || '').toLowerCase().trim();
+    if (!q) return true;
+    const titleMatch = (j.title || '').toLowerCase().includes(q);
+    const deptMatch = (j.department || '').toLowerCase().includes(q);
+    const skills = Array.isArray(j.required_skills)
+      ? j.required_skills
+      : typeof j.required_skills === 'string'
+      ? [j.required_skills]
+      : [];
+    const skillsMatch = skills.some((s) => String(s).toLowerCase().includes(q));
+    return titleMatch || deptMatch || skillsMatch;
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
@@ -163,9 +237,9 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
           <nav className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => setPublicTab('jobs')}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 publicTab === 'jobs'
-                  ? 'bg-white text-slate-900 shadow-sm'
+                  ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -174,34 +248,83 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
             <button
               onClick={() => {
                 setPublicTab('tracker');
-                handleLookupApplications(lookupEmail);
+                if (candidateUser?.email) {
+                  handleLookupApplications(candidateUser.email);
+                }
               }}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
                 publicTab === 'tracker'
-                  ? 'bg-white text-slate-900 shadow-sm'
+                  ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Track My Application
+              <User className="w-3.5 h-3.5 text-blue-600" />
+              {candidateUser ? 'Candidate Portal' : 'Track My Application'}
+              {myApplications.length > 0 && (
+                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 text-blue-700 font-bold">
+                  {myApplications.length}
+                </span>
+              )}
             </button>
           </nav>
 
-          <div>
+          <div className="flex items-center gap-2.5">
+            {/* Candidate User Pill */}
+            {candidateUser ? (
+              <div className="flex items-center gap-1.5">
+                <div
+                  onClick={() => {
+                    setPublicTab('tracker');
+                    handleLookupApplications(candidateUser.email);
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 cursor-pointer transition"
+                  title="Click to view Candidate Portal"
+                >
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">
+                    {candidateUser.name ? candidateUser.name.slice(0, 1).toUpperCase() : 'C'}
+                  </div>
+                  <div className="text-left hidden sm:block">
+                    <div className="text-xs font-bold text-slate-800 leading-tight">
+                      {candidateUser.name}
+                    </div>
+                    <div className="text-[10px] text-blue-600 font-medium">Candidate</div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCandidateLogout}
+                  title="Sign out of Candidate Portal"
+                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowCandidateLoginModal(true)}
+                className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+              >
+                <User className="w-3.5 h-3.5 text-blue-600" />
+                Candidate Sign In
+              </button>
+            )}
+
+            {/* Recruiter Suite Access */}
             {loggedInUser ? (
               <button
                 onClick={onNavigateAdmin}
-                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold flex items-center gap-2 shadow-sm transition"
+                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
               >
                 Recruiter Dashboard
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button
                 onClick={onNavigateLogin}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-sm font-semibold flex items-center gap-2 transition shadow-xs"
+                className="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
               >
-                <Lock className="w-4 h-4 text-slate-500" />
-                Recruiter Login
+                <Lock className="w-3.5 h-3.5 text-slate-500" />
+                <span className="hidden sm:inline">Recruiter Login</span>
               </button>
             )}
           </div>
@@ -246,11 +369,60 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
               <div className="lg:col-span-5 space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Available Roles ({filteredJobs.length})
+                    Available Roles ({loadingJobs ? '...' : filteredJobs.length})
                   </h2>
+                  <button
+                    onClick={loadJobs}
+                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                  >
+                    Refresh
+                  </button>
                 </div>
 
-                {filteredJobs.map((job) => {
+                {jobLoadError && (
+                  <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs space-y-2">
+                    <p className="font-semibold">Failed to connect to backend: {jobLoadError}</p>
+                    <button
+                      onClick={loadJobs}
+                      className="px-3 py-1 bg-rose-600 text-white rounded-lg text-xs font-bold cursor-pointer"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
+                {loadingJobs && (
+                  <div className="space-y-3 animate-pulse">
+                    {[1, 2, 3].map((n) => (
+                      <div key={n} className="p-5 rounded-2xl border border-slate-200 bg-white space-y-3">
+                        <div className="h-4 bg-slate-200 rounded w-1/3"></div>
+                        <div className="h-5 bg-slate-200 rounded w-3/4"></div>
+                        <div className="h-3 bg-slate-100 rounded w-1/2"></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {!loadingJobs && !jobLoadError && filteredJobs.length === 0 && (
+                  <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center space-y-3 shadow-2xs">
+                    <Briefcase className="w-8 h-8 text-slate-300 mx-auto" />
+                    <p className="text-sm font-semibold text-slate-700">No open positions found</p>
+                    <p className="text-xs text-slate-500">
+                      Try clearing your search query or check back later.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        loadJobs();
+                      }}
+                      className="text-xs text-blue-600 font-bold underline cursor-pointer"
+                    >
+                      Clear search & reload jobs
+                    </button>
+                  </div>
+                )}
+
+                {!loadingJobs && filteredJobs.map((job) => {
                   const active = selectedJob?.requisition_id === job.requisition_id;
                   return (
                     <div
@@ -300,6 +472,11 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
 
               {/* Right Job Details Card */}
               <div className="lg:col-span-7">
+                {!selectedJob && !loadingJobs && (
+                  <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-sm">
+                    Select an open role on the left to review requirements and apply.
+                  </div>
+                )}
                 {selectedJob && (
                   <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm sticky top-24">
                     <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-6">
@@ -385,54 +562,93 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
         </div>
       )}
 
-      {/* TAB 2: CANDIDATE APPLICATION TRACKER */}
+      {/* TAB 2: CANDIDATE APPLICATION TRACKER & PORTAL */}
       {publicTab === 'tracker' && (
         <section className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 space-y-6 flex-1">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">Track Your Job Application</h2>
-              <p className="text-sm text-slate-500 mt-0.5">
-                Enter your email address to check your application status, complete your phone screening, or view your interview details.
-              </p>
-            </div>
+          {/* Candidate Profile Header OR Sign-In Banner */}
+          {candidateUser ? (
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white font-bold text-lg flex items-center justify-center shadow-xs">
+                  {candidateUser.name ? candidateUser.name.slice(0, 1).toUpperCase() : 'C'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-slate-900">
+                      Welcome, {candidateUser.name}!
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Candidate Portal
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Logged in as <strong>{candidateUser.email}</strong> · Real-time Application Status & Interactive Stages
+                  </p>
+                </div>
+              </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="email"
-                value={lookupEmail}
-                onChange={(e) => setLookupEmail(e.target.value)}
-                placeholder="Enter your email address..."
-                className="flex-1 rounded-xl bg-slate-50 border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
-              />
-              <button
-                onClick={() => handleLookupApplications(lookupEmail)}
-                disabled={loadingPortal}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-xs cursor-pointer"
-              >
-                {loadingPortal ? 'Checking...' : 'Check Status'}
-              </button>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="text-xs text-slate-400">Demo Applicants:</span>
-              {[
-                ['Ayesha Siddiqui', 'ayesha.siddiqui@example.com'],
-                ['Bilal Ahmed', 'bilal.ahmed@example.com'],
-                ['Hamza Malik', 'hamza.malik@example.com'],
-              ].map(([label, email]) => (
+              <div className="flex items-center gap-2">
                 <button
-                  key={email}
-                  onClick={() => {
-                    setLookupEmail(email);
-                    handleLookupApplications(email);
-                  }}
-                  className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition cursor-pointer"
+                  type="button"
+                  onClick={() => handleLookupApplications(candidateUser.email)}
+                  disabled={loadingPortal}
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  title="Refresh latest updates from recruiting team"
                 >
-                  {label}
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingPortal ? 'animate-spin' : ''}`} />
+                  {loadingPortal ? 'Checking...' : 'Refresh Status'}
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={handleCandidateLogout}
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-600 hover:text-rose-600 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Candidate Sign In & Application Tracker</h2>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  Sign in with your email address to check your real-time status, launch your AI voice screening, or join scheduled technical interviews.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="email"
+                  value={lookupEmail}
+                  onChange={(e) => setLookupEmail(e.target.value)}
+                  placeholder="Enter your email address (e.g. ahmednadeemryk20@gmail.com)..."
+                  className="flex-1 rounded-xl bg-slate-50 border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                />
+                <button
+                  onClick={() => handleCandidateLogin(lookupEmail)}
+                  disabled={loadingPortal}
+                  className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <User className="w-4 h-4" />
+                  {loadingPortal ? 'Signing In...' : 'Sign In as Candidate'}
+                </button>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-xs text-slate-400">Quick Candidate Logins:</span>
+                {SAMPLE_APPLICANTS.map((app) => (
+                  <button
+                    key={app.email}
+                    onClick={() => handleCandidateLogin(app.email, app.name)}
+                    className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-transparent hover:border-blue-200 text-slate-700 font-medium transition cursor-pointer"
+                  >
+                    👤 {app.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {portalMessage && (
             <div
@@ -446,117 +662,245 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-5">
+            {myApplications.length === 0 && !loadingPortal && !portalMessage && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-3">
+                <Briefcase className="w-10 h-10 text-slate-300 mx-auto" />
+                <h3 className="text-base font-bold text-slate-800">No applications found</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  You haven't submitted any job applications under this email yet. Browse our open positions and submit your resume!
+                </p>
+                <button
+                  onClick={() => setPublicTab('jobs')}
+                  className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 cursor-pointer"
+                >
+                  Browse Open Positions →
+                </button>
+              </div>
+            )}
+
             {myApplications.map((app) => (
               <div
                 key={app.candidate_id}
                 className="bg-white border border-slate-200 rounded-2xl p-6 space-y-5 shadow-xs"
               >
+                {/* Application Header */}
                 <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-4">
                   <div>
                     <span className="text-xs font-semibold text-blue-600">{app.department}</span>
                     <h3 className="text-lg font-bold text-slate-900 mt-0.5">{app.job_title}</h3>
                     <p className="text-xs text-slate-500 mt-1">
                       Applicant: <strong className="text-slate-800">{app.name}</strong> ({app.email}) · Timezone: {app.timezone}
+                      {app.applied_at && ` · Applied: ${new Date(app.applied_at).toLocaleDateString()}`}
                     </p>
                   </div>
                   <StatusBadge status={app.current_status} />
                 </div>
 
-                {/* Screening Call Action Card when Shortlisted */}
-                {app.can_take_screening && (
-                  <div className="p-5 rounded-xl bg-blue-50/70 border border-blue-200 space-y-4">
-                    <div>
-                      <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-blue-600 text-white">
-                        Next Step Available
-                      </span>
-                      <h4 className="text-base font-bold text-slate-900 mt-2 flex items-center gap-2">
-                        <PhoneCall className="w-4 h-4 text-blue-600" />
-                        Complete Your Preliminary Screening
-                      </h4>
-                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                        You've been shortlisted! Our AI Recruiting Assistant conducts this quick screening on behalf of our HR team. By submitting your answers below, you consent to having your responses recorded for recruiter review—or you can request a human recruiter instead.
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      {(app.screening_questions || []).map((q, idx) => (
-                        <div key={idx}>
-                          <label className="block text-xs font-semibold text-slate-800 mb-1">
-                            {idx + 1}. {q}
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Write your answer..."
-                            value={screeningAnswers[idx] || ''}
-                            onChange={(e) =>
-                              setScreeningAnswers({ ...screeningAnswers, [idx]: e.target.value })
-                            }
-                            className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-sm text-slate-900"
-                          />
-                        </div>
-                      ))}
-
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-800 mb-1">
-                          Your Availability for an Interview & Notice Period
-                        </label>
-                        <input
-                          type="text"
-                          value={screeningAvail}
-                          onChange={(e) => setScreeningAvail(e.target.value)}
-                          className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-sm text-slate-900"
-                        />
+                {/* 4-Stage Candidate Visual Stepper */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    Application Hiring Pipeline
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+                    {/* Stage 1: Resume Submission */}
+                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                      <div className="flex items-center gap-1.5 font-bold text-emerald-800">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        1. Resume Submitted
+                      </div>
+                      <div className="text-[11px] text-emerald-700 mt-1">
+                        AI Agent 1 evaluation complete
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2.5 pt-1">
-                      <button
-                        disabled={loadingPortal}
-                        onClick={() => handleCandidateScreeningAction(app.candidate_id, 'custom_interactive')}
-                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs cursor-pointer"
-                      >
-                        Consent & Submit Screening Answers
-                      </button>
-                      <button
-                        disabled={loadingPortal}
-                        onClick={() => handleCandidateScreeningAction(app.candidate_id, 'decline_recording')}
-                        className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-medium cursor-pointer"
-                      >
-                        Decline AI Recording
-                      </button>
-                      <button
-                        disabled={loadingPortal}
-                        onClick={() => handleCandidateScreeningAction(app.candidate_id, 'request_human')}
-                        className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-medium cursor-pointer"
-                      >
-                        Request Human Recruiter
-                      </button>
+                    {/* Stage 2: Shortlist Decision */}
+                    <div className={`p-3 rounded-xl border ${
+                      ['Approved for Screening', 'Screening Scheduled / Pending', 'Screening Completed — HR Review', 'Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status)
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : 'bg-white border-slate-200 text-slate-600'
+                    }`}>
+                      <div className="flex items-center gap-1.5 font-bold">
+                        {['Approved for Screening', 'Screening Scheduled / Pending', 'Screening Completed — HR Review', 'Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status) ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        ) : (
+                          <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                        )}
+                        2. Recruiter Shortlist
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-1">
+                        {['Approved for Screening', 'Screening Scheduled / Pending', 'Screening Completed — HR Review', 'Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status)
+                          ? 'Gate #1 Approved by HR'
+                          : 'In HR review queue'}
+                      </div>
                     </div>
+
+                    {/* Stage 3: Voice AI Screening */}
+                    <div className={`p-3 rounded-xl border ${
+                      app.screening_completed || ['Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status)
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : app.can_take_screening
+                        ? 'bg-blue-50 border-blue-400 text-blue-900 ring-2 ring-blue-500/20'
+                        : 'bg-white border-slate-200 text-slate-600'
+                    }`}>
+                      <div className="flex items-center gap-1.5 font-bold">
+                        {app.screening_completed || ['Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status) ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        ) : app.can_take_screening ? (
+                          <PhoneCall className="w-4 h-4 text-blue-600 animate-pulse shrink-0" />
+                        ) : (
+                          <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                        )}
+                        3. Voice AI Screening
+                      </div>
+                      <div className="text-[11px] mt-1">
+                        {app.screening_completed
+                          ? 'Call completed & recorded'
+                          : app.can_take_screening
+                          ? '👉 Call Ready to Start'
+                          : 'Awaiting Gate #1'}
+                      </div>
+                    </div>
+
+                    {/* Stage 4: Technical Interview */}
+                    <div className={`p-3 rounded-xl border ${
+                      app.interview_scheduled
+                        ? 'bg-emerald-50 border-emerald-400 text-emerald-900 ring-2 ring-emerald-500/20'
+                        : 'bg-white border-slate-200 text-slate-600'
+                    }`}>
+                      <div className="flex items-center gap-1.5 font-bold">
+                        {app.interview_scheduled ? (
+                          <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+                        ) : (
+                          <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                        )}
+                        4. Team Lead Interview
+                      </div>
+                      <div className="text-[11px] mt-1">
+                        {app.interview_scheduled
+                          ? 'Confirmed & Meeting Ready'
+                          : 'Pending Gate #2 approval'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Screening Call Action Card when Shortlisted */}
+                {app.can_take_screening && (
+                  <div className="p-5 rounded-2xl bg-blue-50/80 border-2 border-blue-300 space-y-4 shadow-xs">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div>
+                        <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-blue-600 text-white">
+                          Action Required
+                        </span>
+                        <h4 className="text-base font-bold text-slate-900 mt-2 flex items-center gap-2">
+                          <PhoneCall className="w-5 h-5 text-blue-600" />
+                          Interactive AI Voice Screening Call Ready
+                        </h4>
+                        <p className="text-xs text-slate-600 mt-1 max-w-xl leading-relaxed">
+                          Congratulations! You've been shortlisted. Our AI Recruitment Assistant will ask you 3–4 role-related questions aloud. Speak your answers naturally via your microphone (~5 minutes).
+                        </p>
+                      </div>
+
+                      <a
+                        href={`/screening-call?candidate_id=${app.candidate_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition"
+                      >
+                        <PhoneCall className="w-4 h-4" />
+                        Launch AI Voice Screening Room →
+                      </a>
+                    </div>
+
+                    {/* Fallback Text Q&A Form */}
+                    <details className="pt-2 text-xs text-slate-700">
+                      <summary className="font-semibold text-blue-600 cursor-pointer hover:underline mb-2">
+                        Alternative: Submit Written Answers (if you do not have a microphone)
+                      </summary>
+                      <div className="space-y-3 pt-2">
+                        {(app.screening_questions || []).map((q, idx) => (
+                          <div key={idx}>
+                            <label className="block text-xs font-semibold text-slate-800 mb-1">
+                              {idx + 1}. {q}
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="Write your answer..."
+                              value={screeningAnswers[idx] || ''}
+                              onChange={(e) =>
+                                setScreeningAnswers({ ...screeningAnswers, [idx]: e.target.value })
+                              }
+                              className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-sm text-slate-900"
+                            />
+                          </div>
+                        ))}
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-800 mb-1">
+                            Your Availability for an Interview & Notice Period
+                          </label>
+                          <input
+                            type="text"
+                            value={screeningAvail}
+                            onChange={(e) => setScreeningAvail(e.target.value)}
+                            className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-sm text-slate-900"
+                          />
+                        </div>
+
+                        <div className="flex flex-wrap gap-2.5 pt-1">
+                          <button
+                            disabled={loadingPortal}
+                            onClick={() => handleCandidateScreeningAction(app.candidate_id, 'custom_interactive')}
+                            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs cursor-pointer"
+                          >
+                            Submit Written Answers
+                          </button>
+                          <button
+                            disabled={loadingPortal}
+                            onClick={() => handleCandidateScreeningAction(app.candidate_id, 'request_human')}
+                            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-medium cursor-pointer"
+                          >
+                            Request Human Recruiter Contact
+                          </button>
+                        </div>
+                      </div>
+                    </details>
                   </div>
                 )}
 
                 {/* Scheduled Interview Card */}
                 {app.interview_scheduled && app.interview_details && (
-                  <div className="p-5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-3">
-                    <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                      <Calendar className="w-4 h-4 text-emerald-600" />
-                      Your Technical Interview is Scheduled!
+                  <div className="p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 space-y-4 shadow-xs">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
+                        <Calendar className="w-5 h-5 text-emerald-600" />
+                        Your Technical Interview is Confirmed!
+                      </div>
+                      <a
+                        href={app.interview_details.meeting_link || `/interview-room?candidate_id=${app.candidate_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition"
+                      >
+                        <Video className="w-4 h-4" />
+                        Enter Virtual Video Interview Room →
+                      </a>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                      <div className="p-3.5 rounded-xl bg-white border border-emerald-200">
-                        <span className="text-slate-500">Scheduled Time ({app.timezone}):</span>
-                        <div className="font-bold text-slate-900 mt-1">
-                          {app.interview_details.confirmed_slot?.candidate_local_time}
+                      <div className="p-3.5 rounded-xl bg-white border border-emerald-200 space-y-1">
+                        <span className="text-slate-500 font-medium">Scheduled Time (Your Timezone: {app.timezone}):</span>
+                        <div className="font-bold text-slate-900 text-sm">
+                          {app.interview_details.confirmed_slot?.candidate_local_time || 'Confirmed by HR'}
                         </div>
                       </div>
-                      <div className="p-3.5 rounded-xl bg-white border border-emerald-200">
-                        <span className="text-slate-500">Interviewer & Meeting Link:</span>
-                        <div className="font-bold text-slate-900 mt-1">
+                      <div className="p-3.5 rounded-xl bg-white border border-emerald-200 space-y-1">
+                        <span className="text-slate-500 font-medium">Interviewer & Department Lead:</span>
+                        <div className="font-bold text-slate-900 text-sm">
                           {app.interview_details.interviewer_name}
                         </div>
-                        <div className="text-blue-600 truncate mt-0.5">
-                          {app.interview_details.meeting_details?.meeting_link}
+                        <div className="text-blue-600 text-[11px] truncate">
+                          Room: {app.interview_details.meeting_link || `/interview-room?candidate_id=${app.candidate_id}`}
                         </div>
                       </div>
                     </div>
@@ -724,6 +1068,88 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Candidate Sign In Modal */}
+      {showCandidateLoginModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Candidate Sign In</h3>
+                  <p className="text-[11px] text-slate-500">Track your application, screening & interviews</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCandidateLoginModal(false)}
+                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleCandidateLogin(modalLoginEmail || lookupEmail);
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Candidate Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={modalLoginEmail}
+                  onChange={(e) => setModalLoginEmail(e.target.value)}
+                  placeholder="e.g. ahmednadeemryk20@gmail.com"
+                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loadingPortal}
+                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition cursor-pointer"
+              >
+                {loadingPortal ? 'Signing in...' : 'Sign In to Candidate Portal →'}
+              </button>
+            </form>
+
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <div className="text-[11px] font-semibold text-slate-500">
+                Or Sign In as a Verified Applicant:
+              </div>
+              <div className="space-y-1.5">
+                {SAMPLE_APPLICANTS.map((app) => (
+                  <button
+                    key={app.email}
+                    type="button"
+                    onClick={() => {
+                      setModalLoginEmail(app.email);
+                      handleCandidateLogin(app.email, app.name);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex items-center justify-between cursor-pointer"
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">{app.name}</div>
+                      <div className="text-[10px] text-slate-500">{app.email}</div>
+                    </div>
+                    <span className="text-[10px] font-bold text-blue-600 bg-white px-2 py-0.5 rounded-md border border-blue-200">
+                      Sign In →
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

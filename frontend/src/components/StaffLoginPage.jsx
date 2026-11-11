@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Lock, Mail, ArrowLeft, KeyRound } from 'lucide-react';
+import { Sparkles, Lock, Mail, ArrowLeft, KeyRound, User } from 'lucide-react';
 import { api } from '../api/client';
 
 export default function StaffLoginPage({ onLoginSuccess, onBackToPublic }) {
+  const [loginType, setLoginType] = useState('staff'); // 'staff' | 'candidate'
   const [email, setEmail] = useState('recruiter@talentsense.ai');
   const [password, setPassword] = useState('password123');
+  const [candEmail, setCandEmail] = useState('ahmednadeemryk20@gmail.com');
   const [demoAccounts, setDemoAccounts] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,6 +27,17 @@ export default function StaffLoginPage({ onLoginSuccess, onBackToPublic }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCandidateSignIn = (cEmail, cName = '') => {
+    if (!cEmail) return;
+    const cleanEmail = cEmail.trim().toLowerCase();
+    const cleanName = cName || cleanEmail.split('@')[0];
+    localStorage.setItem(
+      'talentsense_candidate_user',
+      JSON.stringify({ email: cleanEmail, name: cleanName })
+    );
+    onBackToPublic();
   };
 
   const accounts = demoAccounts.length
@@ -68,7 +81,37 @@ export default function StaffLoginPage({ onLoginSuccess, onBackToPublic }) {
             <Sparkles className="w-6 h-6" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900">Sign in to TalentSense</h1>
-          <p className="text-xs text-slate-500">HR Recruiter & Hiring Team Portal</p>
+          <p className="text-xs text-slate-500">
+            {loginType === 'staff' ? 'HR Recruiter & Hiring Team Portal' : 'Job Applicant & Screening Portal'}
+          </p>
+        </div>
+
+        {/* Toggle between Staff Recruiter vs Candidate Portal */}
+        <div className="flex p-1 bg-slate-100 rounded-2xl">
+          <button
+            type="button"
+            onClick={() => setLoginType('staff')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+              loginType === 'staff'
+                ? 'bg-white text-slate-900 shadow-2xs'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Lock className="w-3.5 h-3.5" />
+            Recruiter / Staff
+          </button>
+          <button
+            type="button"
+            onClick={() => setLoginType('candidate')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+              loginType === 'candidate'
+                ? 'bg-white text-blue-700 shadow-2xs'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <User className="w-3.5 h-3.5" />
+            Candidate Sign In
+          </button>
         </div>
 
         {error && (
@@ -77,76 +120,138 @@ export default function StaffLoginPage({ onLoginSuccess, onBackToPublic }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Work Email</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-sm transition cursor-pointer"
-          >
-            {loading ? 'Signing In...' : 'Sign In'}
-          </button>
-        </form>
-
-        {/* Quick Demo Switcher */}
-        <div className="pt-4 border-t border-slate-100 space-y-2">
-          <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-            <KeyRound className="w-3.5 h-3.5 text-blue-600" />
-            Quick Demo Login Accounts:
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            {accounts.map((acc) => (
-              <button
-                key={acc.email}
-                type="button"
-                onClick={() => {
-                  setEmail(acc.email);
-                  setPassword(acc.password);
-                }}
-                className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
-                  email === acc.email
-                    ? 'bg-blue-50/80 border-blue-500'
-                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                <div>
-                  <div className="text-xs font-bold text-slate-900">{acc.name}</div>
-                  <div className="text-[11px] text-slate-500">{acc.email}</div>
+        {loginType === 'staff' ? (
+          <>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Work Email</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  />
                 </div>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold">
-                  {acc.role}
-                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-sm transition cursor-pointer"
+              >
+                {loading ? 'Signing In...' : 'Sign In as Recruiter'}
               </button>
-            ))}
+            </form>
+
+            {/* Quick Demo Switcher */}
+            <div className="pt-4 border-t border-slate-100 space-y-2">
+              <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                <KeyRound className="w-3.5 h-3.5 text-blue-600" />
+                Quick Recruiter Login Accounts:
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                {accounts.map((acc) => (
+                  <button
+                    key={acc.email}
+                    type="button"
+                    onClick={() => {
+                      setEmail(acc.email);
+                      setPassword(acc.password);
+                    }}
+                    className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                      email === acc.email
+                        ? 'bg-blue-50/80 border-blue-500'
+                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">{acc.name}</div>
+                      <div className="text-[11px] text-slate-500">{acc.email}</div>
+                    </div>
+                    <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold">
+                      {acc.role}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Your Candidate Email
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <input
+                  type="email"
+                  required
+                  value={candEmail}
+                  onChange={(e) => setCandEmail(e.target.value)}
+                  placeholder="e.g. ahmednadeemryk20@gmail.com"
+                  className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleCandidateSignIn(candEmail)}
+              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-sm transition cursor-pointer flex items-center justify-center gap-2"
+            >
+              <User className="w-4 h-4" />
+              Sign In to Candidate Portal →
+            </button>
+
+            {/* Quick Candidate Logins */}
+            <div className="pt-4 border-t border-slate-100 space-y-2">
+              <div className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-blue-600" />
+                Quick Candidate Profiles:
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { name: 'Muhammad Ahmed', email: 'ahmednadeemryk20@gmail.com', status: 'Shortlisted for Screening' },
+                  { name: 'Ayesha Siddiqui', email: 'ayesha.siddiqui@example.com', status: 'Interview Scheduled' },
+                  { name: 'Bilal Ahmed', email: 'bilal.ahmed@example.com', status: 'Under Review' },
+                ].map((c) => (
+                  <button
+                    key={c.email}
+                    type="button"
+                    onClick={() => handleCandidateSignIn(c.email, c.name)}
+                    className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-left transition flex items-center justify-between cursor-pointer"
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">{c.name}</div>
+                      <div className="text-[11px] text-slate-500">{c.email}</div>
+                    </div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-slate-200 text-blue-700 font-semibold">
+                      {c.status}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="text-center text-xs text-slate-400 pb-2">TalentSense HR Platform</div>

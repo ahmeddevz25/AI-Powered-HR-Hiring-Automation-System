@@ -41,7 +41,28 @@ def _build_engine():
     return create_engine(sqlite_url, connect_args={"check_same_thread": False})
 
 
+def ensure_schema_migrations(eng):
+    """Safely adds missing columns to SQLite / PostgreSQL if they don't already exist."""
+    migrations = [
+        ("requisitions", "assigned_interviewer_id", "VARCHAR(80) DEFAULT 'INT-01'"),
+        ("requisitions", "assigned_interviewer_name", "VARCHAR(120) DEFAULT 'Sarah Jenkins (Lead ML Engineer)'"),
+        ("requisitions", "assigned_interviewer_email", "VARCHAR(150) DEFAULT 'sarah.jenkins@company.example'"),
+        ("interviews", "meeting_link", "VARCHAR(255) DEFAULT ''"),
+        ("interviews", "team_lead_email_draft", "TEXT DEFAULT ''"),
+        ("interviews", "team_lead_send_status", "VARCHAR(50) DEFAULT 'Not Sent'"),
+    ]
+    with eng.connect() as conn:
+        for table, col, col_def in migrations:
+            try:
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_def}"))
+                conn.commit()
+            except Exception:
+                # Column already exists or table not yet created
+                pass
+
+
 engine = _build_engine()
+ensure_schema_migrations(engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

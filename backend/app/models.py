@@ -39,6 +39,9 @@ class Requisition(Base):
     status = Column(String(50), default="Open")
     created_by = Column(String(100), default="HR Recruiter")
     created_at = Column(DateTime(timezone=True), default=utcnow)
+    assigned_interviewer_id = Column(String(80), default="INT-01")
+    assigned_interviewer_name = Column(String(120), default="Sarah Jenkins (Lead ML Engineer)")
+    assigned_interviewer_email = Column(String(150), default="sarah.jenkins@company.example")
 
     candidates = relationship("Candidate", back_populates="requisition", cascade="all, delete-orphan")
 
@@ -132,10 +135,13 @@ class Interview(Base):
     timezone = Column(String(60), default="Asia/Karachi")
     meeting_details = Column(JSON, default=dict)              # {platform, meeting_link, location, reschedule_contact}
     email_draft = Column(Text, default="")
+    team_lead_email_draft = Column(Text, default="")
+    meeting_link = Column(String(255), default="")
     approval_status = Column(String(50), default="Draft")     # Draft | Approved | Rejected
     approved_by = Column(String(100), nullable=True)
     approved_at = Column(DateTime(timezone=True), nullable=True)
     send_status = Column(String(50), default="Not Sent")      # Not Sent | Sent | Failed | Cancelled
+    team_lead_send_status = Column(String(50), default="Not Sent")
     provider_message_id = Column(String(120), nullable=True)
     idempotency_key = Column(String(120), nullable=True, index=True)
     sent_at = Column(DateTime(timezone=True), nullable=True)

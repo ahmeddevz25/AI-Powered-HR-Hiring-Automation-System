@@ -18,17 +18,24 @@ import {
   Database,
   Trash2,
   ShieldCheck,
+  Edit,
+  ExternalLink,
 } from 'lucide-react';
 import { api } from './api/client';
 import StatusBadge from './components/StatusBadge';
 import CreateRequisitionModal from './components/CreateRequisitionModal';
+import EditRequisitionModal from './components/EditRequisitionModal';
+import VirtualInterviewRoom from './components/VirtualInterviewRoom';
 import CandidateDetailPanel from './components/CandidateDetailPanel';
+import CandidateScreeningPage from './components/CandidateScreeningPage';
 import PublicCareersSite from './components/PublicCareersSite';
 import StaffLoginPage from './components/StaffLoginPage';
 
 export default function App() {
   const getInitialViewFromPath = () => {
     const path = window.location.pathname.toLowerCase();
+    if (path.startsWith('/screening-call')) return 'screening_call';
+    if (path.startsWith('/interview-room')) return 'interview_room';
     if (path.startsWith('/login')) return 'login';
     if (path.startsWith('/admin')) return 'admin';
     return 'public';
@@ -39,7 +46,16 @@ export default function App() {
   const [loggedInUser, setLoggedInUser] = useState(null);
 
   const navigateTo = useCallback((mode) => {
-    const targetPath = mode === 'login' ? '/login' : mode === 'admin' ? '/admin' : '/';
+    const targetPath =
+      mode === 'login'
+        ? '/login'
+        : mode === 'admin'
+        ? '/admin'
+        : mode === 'interview_room'
+        ? '/interview-room'
+        : mode === 'screening_call'
+        ? '/screening-call'
+        : '/';
     if (window.location.pathname !== targetPath) {
       window.history.pushState({}, '', targetPath);
     }
@@ -55,6 +71,7 @@ export default function App() {
   const [interviewers, setInterviewers] = useState([]);
   const [globalAuditLogs, setGlobalAuditLogs] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingRequisition, setEditingRequisition] = useState(null);
 
   const [userRole, setUserRole] = useState('HR Recruiter');
   const [actorName, setActorName] = useState('Ayesha Khan (HR Recruiter)');
@@ -62,6 +79,17 @@ export default function App() {
   const [searchCandidate, setSearchCandidate] = useState('');
   const [uploading, setUploading] = useState(false);
   const [banner, setBanner] = useState(null);
+
+  const handleUpdateRequisition = async (reqId, payload) => {
+    try {
+      await api.updateRequisition(reqId, payload, userRole);
+      setBanner({ type: 'success', text: `Job Requisition #${reqId} updated successfully!` });
+      await loadWorkspace();
+    } catch (err) {
+      setBanner({ type: 'error', text: err.message });
+      throw err;
+    }
+  };
 
   const loadWorkspace = useCallback(async (overrideReqId = null) => {
     try {
@@ -213,6 +241,24 @@ export default function App() {
     );
   }
 
+  // 3. VIRTUAL INTERVIEW ROOM VIEW
+  if (viewMode === 'interview_room') {
+    return (
+      <VirtualInterviewRoom
+        onBackToDashboard={() => navigateTo('admin')}
+      />
+    );
+  }
+
+  // 4. CANDIDATE AI VOICE SCREENING ROOM VIEW
+  if (viewMode === 'screening_call') {
+    return (
+      <CandidateScreeningPage
+        onBackToHome={() => navigateTo('public')}
+      />
+    );
+  }
+
   // 3. HR SAAS ADMIN PORTAL
   const candidatesForSelectedJob =
     selectedReqId === 'ALL'
@@ -264,15 +310,15 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex">
       {/* Left SaaS Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 hidden lg:flex">
-        <div className="p-5 space-y-6">
-          <div className="flex items-center gap-2.5 px-2">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm">
+      <aside className="w-72 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 hidden lg:flex">
+        <div className="p-4 space-y-5">
+          <div className="flex items-center gap-3 px-1 pt-1">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
-            <div>
-              <div className="text-base font-bold text-slate-900 tracking-tight">TalentSense</div>
-              <div className="text-[11px] text-slate-500 font-medium">AI HR Admin Suite</div>
+            <div className="min-w-0">
+              <div className="text-base font-extrabold text-slate-900 tracking-tight leading-none">TalentSense</div>
+              <div className="text-[11px] text-slate-500 font-medium mt-1">AI HR Admin Suite</div>
             </div>
           </div>
 
@@ -291,20 +337,20 @@ export default function App() {
                       setGlobalAuditLogs(logs);
                     }
                   }}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                     active
-                      ? 'bg-blue-50 text-blue-700 font-semibold'
+                      ? 'bg-blue-600 text-white shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
-                  <span className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${active ? 'text-blue-600' : 'text-slate-400'}`} />
-                    {item.label}
+                  <span className="flex items-center gap-3 truncate">
+                    <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-slate-400'}`} />
+                    <span className="truncate">{item.label}</span>
                   </span>
                   {item.badge !== undefined && item.badge !== null && (
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                        active ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                      className={`text-[11px] px-2 py-0.5 rounded-full font-bold shrink-0 ml-2 ${
+                        active ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       {item.badge}
@@ -316,61 +362,68 @@ export default function App() {
           </nav>
 
           {/* Database & Quick Links */}
-          <div className="pt-4 border-t border-slate-100 space-y-1.5">
-            <div className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-500 flex items-center gap-2">
-              <Database className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-              <span className="truncate" title={health?.database_engine}>
-                DB: <strong className="text-slate-700">{health?.database_engine || 'PostgreSQL'}</strong>
+          <div className="pt-3 border-t border-slate-100 space-y-1">
+            <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between">
+              <span className="flex items-center gap-2 truncate">
+                <Database className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="font-semibold truncate">
+                  {health?.database_engine?.includes('PostgreSQL') && !health?.database_engine?.includes('Fallback')
+                    ? 'PostgreSQL'
+                    : 'SQLite (Local DB)'}
+                </span>
               </span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Connected & Active" />
             </div>
 
             <button
               onClick={() => navigateTo('public')}
-              className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl hover:bg-slate-100 text-xs font-semibold text-blue-600 transition cursor-pointer"
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-blue-50 text-xs font-semibold text-blue-600 transition cursor-pointer"
             >
               <span className="flex items-center gap-2.5">
-                <Globe className="w-4 h-4" />
-                Open Public Careers Site
+                <Globe className="w-3.5 h-3.5" />
+                Public Careers Site
               </span>
-              <span>↗</span>
+              <span className="text-slate-400 text-xs">↗</span>
             </button>
 
             <button
               onClick={() => handleResetDemo(true)}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl hover:bg-slate-100 text-xs font-medium text-slate-600 transition cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 text-xs font-medium text-slate-600 transition cursor-pointer"
             >
-              <RotateCcw className="w-4 h-4 text-slate-400" />
+              <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
               Reload Demo Dataset
             </button>
 
             <button
               onClick={() => handleResetDemo(false)}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl hover:bg-rose-50 text-xs font-medium text-slate-500 hover:text-rose-600 transition cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-rose-50 text-xs font-medium text-slate-500 hover:text-rose-600 transition cursor-pointer"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
               Clear All Demo Data
             </button>
           </div>
         </div>
 
         {/* Staff User Footer */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50/50 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+        <div className="p-3.5 border-t border-slate-200 bg-slate-50/70 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-2xs">
               {actorName.slice(0, 2).toUpperCase()}
             </div>
-            <div className="overflow-hidden">
-              <div className="text-xs font-bold text-slate-900 truncate">{actorName}</div>
-              <div className="text-[11px] text-slate-500 font-medium">{userRole}</div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-slate-900 truncate leading-tight" title={actorName}>
+                {actorName.split('(')[0].trim()}
+              </div>
+              <div className="text-[10px] text-slate-500 font-medium truncate">{userRole}</div>
             </div>
           </div>
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-xs font-semibold text-slate-600 hover:text-rose-600 transition cursor-pointer"
+            title="Sign Out"
+            className="p-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition cursor-pointer shrink-0"
           >
-            <LogOut className="w-3.5 h-3.5" />
-            Sign Out
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </aside>
@@ -378,9 +431,9 @@ export default function App() {
       {/* Main Right Workspace */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Admin Header Bar */}
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-20 px-6 h-16 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-lg font-bold text-slate-900">
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-20 px-6 py-3 min-h-[64px] flex items-center justify-between gap-4 shadow-2xs">
+          <div className="flex items-center gap-3 min-w-0">
+            <h1 className="text-base font-bold text-slate-900 whitespace-nowrap">
               {adminSection === 'dashboard' && 'Recruitment Overview'}
               {adminSection === 'jobs' && 'Job Openings & Rubrics'}
               {adminSection === 'candidates' && 'Candidates & Agent 1 Scores'}
@@ -391,28 +444,31 @@ export default function App() {
 
             {/* Filter by Job Requisition (Defaults to ALL so every public applicant is visible!) */}
             {['dashboard', 'candidates', 'screenings', 'interviews'].includes(adminSection) && (
-              <select
-                value={selectedReqId}
-                onChange={(e) => {
-                  const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
-                  setSelectedReqId(val);
-                }}
-                className="rounded-xl bg-slate-50 border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-600"
-              >
-                <option value="ALL">All Job Openings ({allCandidates.length} total applicants)</option>
-                {requisitions.map((r) => (
-                  <option key={r.requisition_id} value={r.requisition_id}>
-                    Job #{r.requisition_id}: {r.title} ({r.candidate_count} applicants)
-                  </option>
-                ))}
-              </select>
+              <div className="hidden sm:flex items-center gap-2">
+                <span className="text-slate-300 font-light">|</span>
+                <select
+                  value={selectedReqId}
+                  onChange={(e) => {
+                    const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
+                    setSelectedReqId(val);
+                  }}
+                  className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white focus:bg-white focus:outline-none focus:border-blue-600 max-w-[260px] truncate cursor-pointer transition shadow-2xs"
+                >
+                  <option value="ALL">All Jobs ({allCandidates.length} applicants)</option>
+                  {requisitions.map((r) => (
+                    <option key={r.requisition_id} value={r.requisition_id}>
+                      #{r.requisition_id}: {r.title} ({r.candidate_count || 0})
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Role Switcher */}
-            <div className="hidden sm:flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5">
-              <ShieldCheck className="w-4 h-4 text-blue-600" />
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
               <select
                 value={userRole}
                 onChange={(e) => {
@@ -420,7 +476,7 @@ export default function App() {
                   setUserRole(r);
                   setActorName(`${r} (${loggedInUser?.name?.split(' ')[0] || 'Staff'})`);
                 }}
-                className="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none"
+                className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
               >
                 <option value="HR Recruiter">Role: HR Recruiter</option>
                 <option value="Hiring Manager">Role: Hiring Manager</option>
@@ -429,9 +485,10 @@ export default function App() {
               </select>
             </div>
 
-            <label className="cursor-pointer px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition">
+            <label className="cursor-pointer px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition">
               <Upload className="w-3.5 h-3.5 text-slate-500" />
-              {uploading ? 'Scoring...' : 'Upload Resumes'}
+              <span className="hidden sm:inline">{uploading ? 'Scoring...' : 'Upload Resumes'}</span>
+              <span className="sm:hidden">{uploading ? '...' : 'Upload'}</span>
               <input
                 type="file"
                 multiple
@@ -443,10 +500,11 @@ export default function App() {
 
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-xs transition cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
-              Post New Job
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Post New Job</span>
+              <span className="sm:hidden">New Job</span>
             </button>
           </div>
         </header>
@@ -664,7 +722,7 @@ export default function App() {
                 {requisitions.map((r) => (
                   <div
                     key={r.requisition_id}
-                    className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs flex flex-col justify-between space-y-4"
+                    className="bg-white border border-slate-200 hover:border-blue-300 rounded-2xl p-6 shadow-2xs hover:shadow-md transition flex flex-col justify-between space-y-4 group"
                   >
                     <div className="space-y-2.5">
                       <div className="flex items-start justify-between gap-2">
@@ -676,7 +734,22 @@ export default function App() {
                             {r.status}
                           </span>
                           <button
-                            onClick={() => handleDeleteRequisition(r.requisition_id, r.title)}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingRequisition(r);
+                            }}
+                            className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 cursor-pointer"
+                            title="Edit Job Requisition & Rubric"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteRequisition(r.requisition_id, r.title);
+                            }}
                             className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
                             title="Delete Job Requisition"
                           >
@@ -684,8 +757,16 @@ export default function App() {
                           </button>
                         </div>
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900">{r.title}</h3>
+
+                      <h3
+                        onClick={() => setEditingRequisition(r)}
+                        className="text-lg font-bold text-slate-900 group-hover:text-blue-600 cursor-pointer transition flex items-center justify-between"
+                      >
+                        <span>{r.title}</span>
+                      </h3>
+
                       <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">{r.job_description}</p>
+
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {(r.required_skills || []).map((sk) => (
                           <span
@@ -696,23 +777,43 @@ export default function App() {
                           </span>
                         ))}
                       </div>
-                      <div className="text-[11px] text-slate-400 pt-1">
+
+                      {/* Assigned Team Lead Badge */}
+                      <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-100 text-xs text-blue-900 flex items-center gap-2">
+                        <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span className="truncate">
+                          <strong>Assigned Lead:</strong> {r.assigned_interviewer_name || 'Sarah Jenkins (Lead ML Engineer)'}
+                        </span>
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 pt-0.5">
                         Rubric Weights: Skills {r.rubric?.required_skills}% · Exp {r.rubric?.relevant_experience}% ·
                         Projects {r.rubric?.role_related_projects}%
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-700">{r.candidate_count} Applicants</span>
-                      <button
-                        onClick={() => {
-                          setSelectedReqId(r.requisition_id);
-                          setAdminSection('candidates');
-                        }}
-                        className="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white text-xs font-semibold transition cursor-pointer"
-                      >
-                        Manage Applicants →
-                      </button>
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-slate-700">{r.candidate_count || 0} Applicants</span>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setEditingRequisition(r)}
+                          className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                        >
+                          Edit Details
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedReqId(r.requisition_id);
+                            setAdminSection('candidates');
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition cursor-pointer"
+                        >
+                          Applicants →
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -725,21 +826,21 @@ export default function App() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               {/* Left Candidate Queue */}
               <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-3">
-                <div className="space-y-2 pb-3 border-b border-slate-100">
+                <div className="space-y-2.5 pb-3 border-b border-slate-100">
                   <div className="relative">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
                       type="text"
                       value={searchCandidate}
                       onChange={(e) => setSearchCandidate(e.target.value)}
-                      placeholder="Search by name, email, or job..."
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                      placeholder="Search candidate name, email..."
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 transition"
                     />
                   </div>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-medium"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:border-blue-600 transition"
                   >
                     <option value="ALL">All Statuses ({candidatesForSelectedJob.length})</option>
                     {(health?.lifecycle_statuses || []).map((st) => (
@@ -809,6 +910,11 @@ export default function App() {
                   onShortlistDecision={async (cid, payload) => {
                     await api.shortlistDecision(cid, payload, userRole);
                     await loadWorkspace();
+                  }}
+                  onSendScreeningInvite={async (cid) => {
+                    const res = await api.sendScreeningInviteEmail(cid, userRole);
+                    await loadWorkspace();
+                    return res;
                   }}
                   onRunScreening={async (cid, payload) => {
                     await api.runScreeningCall(cid, payload, userRole);
@@ -885,6 +991,13 @@ export default function App() {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreateRequisition}
+      />
+
+      <EditRequisitionModal
+        requisition={editingRequisition}
+        isOpen={Boolean(editingRequisition)}
+        onClose={() => setEditingRequisition(null)}
+        onUpdate={handleUpdateRequisition}
       />
     </div>
   );

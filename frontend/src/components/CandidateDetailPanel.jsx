@@ -15,6 +15,9 @@ import {
   Trash2,
   UserCheck,
   Briefcase,
+  ExternalLink,
+  Copy,
+  Check,
 } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 
@@ -26,6 +29,7 @@ export default function CandidateDetailPanel({
   actorName,
   defaultTab = null,
   onShortlistDecision,
+  onSendScreeningInvite,
   onRunScreening,
   onReviewScreening,
   onProposeSlots,
@@ -55,6 +59,9 @@ export default function CandidateDetailPanel({
   const [simCalFailure, setSimCalFailure] = useState(false);
   const [simEmailFailure, setSimEmailFailure] = useState(false);
   const [emailDraftText, setEmailDraftText] = useState('');
+  const [teamLeadDraftText, setTeamLeadDraftText] = useState('');
+  const [activeEmailTab, setActiveEmailTab] = useState('candidate');
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Exception Resolution
   const [manualReason, setManualReason] = useState('Verified candidate resume details manually.');
@@ -65,6 +72,10 @@ export default function CandidateDetailPanel({
     if (!candidate) return;
     setCandidateTz(candidate.timezone || 'Asia/Karachi');
     setEmailDraftText(candidate.interview?.email_draft || '');
+    setTeamLeadDraftText(candidate.interview?.team_lead_email_draft || '');
+    if (candidate.requisition?.assigned_interviewer_id) {
+      setSelectedInterviewer(candidate.requisition.assigned_interviewer_id);
+    }
     setFeedback(null);
 
     if (defaultTab) {
@@ -447,6 +458,58 @@ export default function CandidateDetailPanel({
                       Decline & Close
                     </button>
                   </div>
+
+                  {/* Screening Invite Status & Shareable Link */}
+                  {['Approved for Screening', 'Screening Scheduled / Pending', 'Screening Completed — HR Review', 'Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(candidate.current_status) && (
+                    <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 flex items-center justify-between flex-wrap gap-2 text-xs">
+                      <div className="flex items-center gap-2 text-blue-900 font-medium">
+                        <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span>
+                          Screening Invitation for <strong>{candidate.email}</strong>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {onSendScreeningInvite && (
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() =>
+                              wrapAction(
+                                () => onSendScreeningInvite(candidate.candidate_id),
+                                `Screening invitation email dispatched to ${candidate.email} via Mailtrap!`
+                              )
+                            }
+                            className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
+                          >
+                            <Mail className="w-3 h-3" />
+                            Send / Resend Email (Mailtrap)
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const url = `http://localhost:5173/screening-call?candidate_id=${candidate.candidate_id}`;
+                            navigator.clipboard.writeText(url);
+                            setCopiedLink(true);
+                            setTimeout(() => setCopiedLink(false), 2500);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-1 cursor-pointer"
+                        >
+                          {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          {copiedLink ? 'Copied Link!' : 'Copy Link'}
+                        </button>
+                        <a
+                          href={`/screening-call?candidate_id=${candidate.candidate_id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-1 cursor-pointer"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          Open Session
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -456,6 +519,55 @@ export default function CandidateDetailPanel({
         {/* ================= TAB 2: AGENT 2 & HUMAN GATE #2 ================= */}
         {activeTab === 'screening' && (
           <div className="space-y-6">
+            {/* Screening Invite Quick Actions Banner */}
+            <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200 flex items-center justify-between flex-wrap gap-2 text-xs">
+              <div className="flex items-center gap-2 text-blue-900 font-medium">
+                <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+                <span>
+                  Candidate Email: <strong>{candidate.email}</strong>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                {onSendScreeningInvite && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() =>
+                      wrapAction(
+                        () => onSendScreeningInvite(candidate.candidate_id),
+                        `Screening invitation email dispatched to ${candidate.email} via Mailtrap!`
+                      )
+                    }
+                    className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
+                  >
+                    <Mail className="w-3 h-3" />
+                    Send / Resend Screening Invite (Mailtrap)
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = `http://localhost:5173/screening-call?candidate_id=${candidate.candidate_id}`;
+                    navigator.clipboard.writeText(url);
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2500);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-1 cursor-pointer"
+                >
+                  {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                  {copiedLink ? 'Copied Link!' : 'Copy Link'}
+                </button>
+                <a
+                  href={`/screening-call?candidate_id=${candidate.candidate_id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-1 cursor-pointer"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Open Candidate Voice Room
+                </a>
+              </div>
+            </div>
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
@@ -858,14 +970,78 @@ export default function CandidateDetailPanel({
                       </span>
                     </div>
 
-                    <textarea
-                      rows={10}
-                      value={emailDraftText}
-                      onChange={(e) => setEmailDraftText(e.target.value)}
-                      className="w-full rounded-xl bg-white border border-slate-300 p-3.5 text-xs font-mono text-slate-800 leading-relaxed"
-                    />
+                    {/* Tabs for Candidate Email vs Team Lead Email */}
+                    <div className="flex border-b border-emerald-200 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setActiveEmailTab('candidate')}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-t-lg transition border-b-2 cursor-pointer ${
+                          activeEmailTab === 'candidate'
+                            ? 'border-emerald-600 text-emerald-800 bg-white'
+                            : 'border-transparent text-slate-500 hover:text-slate-800'
+                        }`}
+                      >
+                        Candidate Email ({candidate.email})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveEmailTab('team_lead')}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-t-lg transition border-b-2 cursor-pointer ${
+                          activeEmailTab === 'team_lead'
+                            ? 'border-emerald-600 text-emerald-800 bg-white'
+                            : 'border-transparent text-slate-500 hover:text-slate-800'
+                        }`}
+                      >
+                        Team Lead Email ({intData.interviewer_name} &lt;{intData.interviewer_email}&gt;)
+                      </button>
+                    </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-3">
+                    {activeEmailTab === 'candidate' ? (
+                      <div>
+                        <div className="text-[11px] font-semibold text-slate-500 mb-1">
+                          Candidate Email Draft (Timezone slot + Virtual Meeting Room Link):
+                        </div>
+                        <textarea
+                          rows={9}
+                          value={emailDraftText}
+                          onChange={(e) => setEmailDraftText(e.target.value)}
+                          className="w-full rounded-xl bg-white border border-slate-300 p-3.5 text-xs font-mono text-slate-800 leading-relaxed"
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="text-[11px] font-semibold text-slate-500 mb-1">
+                          Team Lead Briefing Email Draft (Candidate score summary, questions & meeting link):
+                        </div>
+                        <textarea
+                          rows={9}
+                          value={teamLeadDraftText || intData.team_lead_email_draft || ''}
+                          onChange={(e) => setTeamLeadDraftText(e.target.value)}
+                          className="w-full rounded-xl bg-white border border-slate-300 p-3.5 text-xs font-mono text-slate-800 leading-relaxed"
+                        />
+                      </div>
+                    )}
+
+                    {/* Virtual Meeting Link preview */}
+                    <div className="p-3 rounded-xl bg-white border border-emerald-200 flex items-center justify-between flex-wrap gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-700">
+                        <span className="font-semibold text-emerald-700">Meeting Room Link:</span>
+                        <code className="text-[11px] text-blue-600 bg-slate-50 px-2 py-0.5 rounded">
+                          http://localhost:5173/interview-room?candidate_id={candidate.candidate_id}
+                        </code>
+                      </div>
+                      <a
+                        href={`/interview-room?candidate_id=${candidate.candidate_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 flex items-center gap-1 cursor-pointer"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Open Interview Room
+                      </a>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                       <label className="inline-flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
                         <input
                           type="checkbox"
@@ -886,9 +1062,10 @@ export default function CandidateDetailPanel({
                                 actor: actorName,
                                 actor_role: userRole,
                                 custom_email_body: emailDraftText,
+                                custom_team_lead_body: teamLeadDraftText,
                                 simulate_email_failure: simEmailFailure,
                               }),
-                            'Gate #3 Approved: Interview Invitation Sent!'
+                            'Gate #3 Approved: Dual Interview Invitations Sent to Candidate and Team Lead!'
                           )
                         }
                         className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm cursor-pointer"
@@ -896,14 +1073,18 @@ export default function CandidateDetailPanel({
                         <Send className="w-3.5 h-3.5" />
                         {intData.send_status === 'Sent'
                           ? 'Test Duplicate Send (Idempotency Check)'
-                          : 'Approve & Send Interview Invitation'}
+                          : 'Approve & Send Dual Invitations (Candidate & Team Lead)'}
                       </button>
                     </div>
 
                     {intData.provider_message_id && (
-                      <div className="text-xs text-emerald-800 bg-white p-3 rounded-xl border border-emerald-200">
-                        ✓ Sent via Email Adapter · Message ID: <code>{intData.provider_message_id}</code> · Idempotency Key:{' '}
-                        <code>{intData.idempotency_key}</code>
+                      <div className="text-xs text-emerald-800 bg-white p-3 rounded-xl border border-emerald-200 space-y-1">
+                        <div className="font-bold">✓ Dual Invitations Sent via Mailtrap / SMTP:</div>
+                        <div>• Candidate: <code>{candidate.email}</code></div>
+                        <div>• Team Lead: <code>{intData.interviewer_email}</code></div>
+                        <div className="text-[11px] text-slate-500 pt-0.5">
+                          Provider Ref: <code>{intData.provider_message_id}</code> · Idempotency Key: <code>{intData.idempotency_key}</code>
+                        </div>
                       </div>
                     )}
                   </div>

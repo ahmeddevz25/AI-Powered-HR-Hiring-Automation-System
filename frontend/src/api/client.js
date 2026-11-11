@@ -48,6 +48,8 @@ export const api = {
   },
   getCandidatePortal: (email) =>
     request(`/public/candidate-portal?email=${encodeURIComponent(email)}`, {}, 'Candidate'),
+  getScreeningBrief: (candidateId) =>
+    request(`/public/candidates/${candidateId}/screening-brief`, {}, 'Candidate'),
   submitCandidateSelfScreening: (candidateId, payload) =>
     request(`/public/candidates/${candidateId}/self-screening`, { method: 'POST', body: JSON.stringify(payload) }, 'Candidate'),
 
@@ -57,9 +59,13 @@ export const api = {
     request(reqId ? `/candidates?requisition_id=${reqId}` : '/candidates'),
   createRequisition: (payload, role) =>
     request('/requisitions', { method: 'POST', body: JSON.stringify(payload) }, role),
+  updateRequisition: (reqId, payload, role) =>
+    request(`/requisitions/${reqId}`, { method: 'PUT', body: JSON.stringify(payload) }, role),
   deleteRequisition: (reqId, role) =>
     request(`/requisitions/${reqId}`, { method: 'DELETE' }, role),
   getRequisitionDetail: (reqId) => request(`/requisitions/${reqId}`),
+  getInterviewRoomDetails: (candidateId) =>
+    request(`/interviews/${candidateId}/room-details`),
   uploadResumes: (reqId, files, actor, role) => {
     const form = new FormData();
     for (const f of files) {
@@ -70,6 +76,14 @@ export const api = {
   },
   shortlistDecision: (candidateId, payload, role) =>
     request(`/candidates/${candidateId}/shortlist-decision`, { method: 'POST', body: JSON.stringify(payload) }, role),
+  sendScreeningInviteEmail: (candidateId, role) =>
+    request(`/candidates/${candidateId}/screening/send-invite-email`, { method: 'POST' }, role),
+  getScreeningBrief: (candidateId) =>
+    request(`/public/candidates/${candidateId}/screening-brief`),
+  getSmtpStatus: () =>
+    request('/settings/smtp-status'),
+  testSmtp: (toEmail = 'test@example.com') =>
+    request(`/settings/smtp-test?to_email=${encodeURIComponent(toEmail)}`, { method: 'POST' }),
   runScreeningCall: (candidateId, payload, role) =>
     request(`/candidates/${candidateId}/screening/run`, { method: 'POST', body: JSON.stringify(payload) }, role),
   reviewScreening: (candidateId, payload, role) =>

@@ -113,18 +113,18 @@ MAX_CALL_RETRY_ATTEMPTS=2
 ### Quick Start (Windows One-Click)
 Double-click `start_project.bat` or run the two servers in separate terminals:
 
-**Terminal 1 — Python FastAPI Backend (Port 8000):**
+**Terminal 1 — Python FastAPI Backend (Port 8001):**
 ```powershell
-cd d:\hr-hiring-automation\backend
-C:\Users\AHMED\python\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+cd backend
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 **Terminal 2 — React Frontend (Port 5173):**
 ```powershell
-cd d:\hr-hiring-automation\frontend
-C:\nvm4w\nodejs\npm.cmd run dev
+cd frontend
+npm.cmd run dev
 ```
-Open **http://localhost:5173** in your browser (API Swagger docs available at **http://127.0.0.1:8000/docs**).
+Open **http://localhost:5173** in your browser (API Swagger docs available at **http://127.0.0.1:8001/docs**).
 
 ---
 
