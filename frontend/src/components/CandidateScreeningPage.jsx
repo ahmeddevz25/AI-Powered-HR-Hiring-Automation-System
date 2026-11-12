@@ -41,6 +41,7 @@ export default function CandidateScreeningPage({ onBackToHome }) {
 
   const recognitionRef = useRef(null);
   const timerRef = useRef(null);
+  const audioRef = useRef(null);
 
   const loadBrief = async () => {
     try {
@@ -107,8 +108,8 @@ export default function CandidateScreeningPage({ onBackToHome }) {
   const currentPrompt = getPromptForStep(step);
   const currentKey = step === 0 ? 'consent' : step <= questions.length ? String(step - 1) : 'availability';
 
-  // Text to Speech
-  const speakText = (text, onFinished = null) => {
+  // Text to Speech (ElevenLabs In-Browser Audio with Web Speech API Fallback)
+  const speakWithBrowserFallback = (text, onFinished = null) => {
     if (!('speechSynthesis' in window)) {
       if (onFinished) onFinished();
       return;
@@ -135,7 +136,54 @@ export default function CandidateScreeningPage({ onBackToHome }) {
     window.speechSynthesis.speak(utterance);
   };
 
+  const speakText = async (text, onFinished = null) => {
+    stopSpeaking();
+    stopListening();
+    setIsSpeaking(true);
+
+    try {
+      const resp = await fetch('/api/tts/speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+
+      if (resp.ok) {
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const audio = new Audio(blobUrl);
+        audioRef.current = audio;
+
+        audio.onended = () => {
+          URL.revokeObjectURL(blobUrl);
+          audioRef.current = null;
+          setIsSpeaking(false);
+          if (onFinished) onFinished();
+        };
+        audio.onerror = () => {
+          URL.revokeObjectURL(blobUrl);
+          audioRef.current = null;
+          speakWithBrowserFallback(text, onFinished);
+        };
+
+        await audio.play();
+        return;
+      }
+    } catch {
+      // Fallback to browser TTS if ElevenLabs is not configured or unreachable
+    }
+
+    speakWithBrowserFallback(text, onFinished);
+  };
+
   const stopSpeaking = () => {
+    if (audioRef.current) {
+      try {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      } catch {}
+      audioRef.current = null;
+    }
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }

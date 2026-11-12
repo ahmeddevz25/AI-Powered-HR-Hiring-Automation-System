@@ -1,10 +1,12 @@
+import os
 import uuid
 from typing import List, Optional
-from fastapi import APIRouter, Depends, UploadFile, File, Form, Header, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, Form, Header, HTTPException, Response
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..database import get_db, ACTIVE_DB_ENGINE_NAME
-from ..config import GEMINI_MODEL, DATA_RETENTION_DAYS, MAX_UPLOAD_SIZE_MB, MAX_CALL_RETRY_ATTEMPTS, UPLOAD_DIR
+from ..config import GEMINI_MODEL, DATA_RETENTION_DAYS, MAX_UPLOAD_SIZE_MB, MAX_CALL_RETRY_ATTEMPTS, UPLOAD_DIR, BASE_DIR, ELEVENLABS_VOICE_ID
 from ..models import (
     Requisition,
     Candidate,
@@ -1739,5 +1741,38 @@ def get_candidate_screening_brief(candidate_id: int, db: Session = Depends(get_d
         "screening_completed": scr is not None and str(scr.call_status).startswith("Completed"),
         "concise_summary": scr.concise_summary if scr else None,
     }
+
+
+class TTSSpeakRequest(BaseModel):
+    text: str
+    voice_id: Optional[str] = None
+
+
+@router.get("/tts/status")
+def get_tts_status():
+    """Returns whether ElevenLabs API key is configured for in-browser voice playback."""
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / ".env", override=True)
+    key = os.getenv("ELEVENLABS_API_KEY", "").strip()
+    return {
+        "elevenlabs_configured": bool(key),
+        "voice_id": os.getenv("ELEVENLABS_VOICE_ID", ELEVENLABS_VOICE_ID).strip(),
+        "provider": "ElevenLabs Neural TTS (In-Browser Audio)" if key else "Browser Web Speech API (Fallback)",
+    }
+
+
+@router.post("/tts/speak")
+def speak_with_elevenlabs(payload: TTSSpeakRequest):
+    """
+    Generates MP3 speech via ElevenLabs API and streams it directly back to the browser
+    so the voice plays inside the React web app without opening ElevenLabs externally.
+    """
+    from ..services.tts_service import synthesize_speech_elevenlabs
+
+    ok, audio_bytes, msg = synthesize_speech_elevenlabs(payload.text, payload.voice_id)
+    if not ok:
+        raise HTTPException(status_code=503, detail=msg)
+    return Response(content=audio_bytes, media_type="audio/mpeg")
+
 
 
