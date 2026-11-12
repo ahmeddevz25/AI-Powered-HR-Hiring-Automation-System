@@ -29,22 +29,61 @@ import candidateAvatar from '../assets/candidate.png';
 // Animated Audio Equalizer Component
 function AudioEqualizer({ active, color = 'blue' }) {
   const heights = [35, 90, 55, 100, 45, 80, 60];
+// Compact Animated Equalizer Pill
+function AudioEqualizer({ active, color = 'cyan' }) {
+  const heights = [40, 95, 60, 100, 50, 85, 65, 90];
   return (
     <div className="flex items-end gap-1 h-4 px-1">
+    <div className="flex items-center gap-0.5 h-4 px-1">
       {heights.map((h, i) => (
         <span
           key={i}
           className={`w-1 rounded-full transition-all duration-150 ${
             color === 'emerald' ? 'bg-emerald-400' : 'bg-blue-400'
+            active ? 'animate-soundwave' : ''
+          } ${
+            color === 'emerald'
+              ? 'bg-gradient-to-t from-emerald-500 to-teal-300'
+              : 'bg-gradient-to-t from-cyan-500 to-teal-300'
           }`}
           style={{
             height: active ? `${h}%` : '20%',
             animation: active
               ? `pulse 0.6s ease-in-out infinite ${(i * 0.1).toFixed(2)}s`
               : 'none',
+            height: active ? `${h}%` : '24%',
+            animationDelay: `${(i * 0.09).toFixed(2)}s`,
           }}
         />
       ))}
+    </div>
+  );
+}
+
+// Wide Studio Multi-Bar Soundwave Visualizer
+function StudioWaveform({ active, color = 'cyan', volume = 50 }) {
+  const bars = [28, 52, 85, 45, 95, 70, 100, 60, 88, 40, 92, 76, 100, 58, 84, 48, 90, 64, 42, 30];
+  return (
+    <div className="flex items-center justify-center gap-1 h-9 px-3 py-1.5 rounded-2xl bg-black/35 border border-white/10 backdrop-blur-md">
+      {bars.map((baseH, idx) => {
+        const boost = active ? Math.min(100, Math.max(25, baseH + (volume > 10 ? (volume - 30) * 0.3 : 0))) : 18;
+        return (
+          <span
+            key={idx}
+            className={`w-1 rounded-full transition-all duration-150 ${
+              active ? 'animate-soundwave' : 'opacity-30'
+            } ${
+              color === 'emerald'
+                ? 'bg-gradient-to-t from-emerald-500 via-teal-400 to-emerald-200 shadow-xs shadow-emerald-400/50'
+                : 'bg-gradient-to-t from-cyan-500 via-teal-400 to-cyan-200 shadow-xs shadow-cyan-400/50'
+            }`}
+            style={{
+              height: active ? `${boost}%` : '20%',
+              animationDelay: `${((idx % 7) * 0.11).toFixed(2)}s`,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -733,6 +772,12 @@ export default function CandidateScreeningPage({ onBackToHome }) {
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm font-semibold text-slate-300">Connecting to TalentSense Voice AI Studio...</p>
+      <div className="min-h-screen bg-[#060B14] text-white flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="w-96 h-96 rounded-full bg-teal-500/15 blur-3xl absolute -top-20 -left-20 animate-float-orb" />
+        <div className="w-96 h-96 rounded-full bg-cyan-500/15 blur-3xl absolute -bottom-20 -right-20 animate-float-orb" />
+        <div className="flex flex-col items-center gap-3 relative z-10">
+          <div className="w-11 h-11 border-4 border-teal-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-bold text-zinc-200">Connecting to TalentSense Neural Voice Studio...</p>
         </div>
       </div>
     );
@@ -746,38 +791,57 @@ export default function CandidateScreeningPage({ onBackToHome }) {
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
         <div className="max-w-xl w-full bg-slate-900/95 border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl backdrop-blur-xl">
           <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 flex items-center justify-center mx-auto shadow-inner">
+      <div className="min-h-screen bg-[#060B14] text-white flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="w-[450px] h-[450px] rounded-full bg-emerald-500/15 blur-3xl absolute top-10 left-1/4 animate-float-orb pointer-events-none" />
+        <div className="max-w-xl w-full bg-zinc-900/85 border border-white/15 rounded-3xl p-8 space-y-6 shadow-2xl backdrop-blur-2xl relative z-10">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-zinc-950 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
             <CheckCircle2 className="w-9 h-9" />
           </div>
 
           <div className="text-center space-y-2">
             <h2 className="text-2xl font-bold text-white">Screening Call Completed!</h2>
             <p className="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
+            <h2 className="text-2xl font-extrabold text-white tracking-tight">Voice Screening Completed!</h2>
+            <p className="text-xs text-zinc-300 leading-relaxed max-w-md mx-auto">
               Thank you, <strong>{brief?.name}</strong>. Your spoken responses have been recorded, transcribed, and submitted directly to our HR recruiting team and team lead.
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-3 text-xs">
             <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+          <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-3 text-xs">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-teal-300 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               Verified Screening Summary
             </div>
             <div className="flex items-center justify-between text-slate-300 border-b border-slate-900 pb-2">
               <span className="text-slate-400">Candidate:</span>
+            <div className="flex items-center justify-between text-zinc-300 border-b border-white/10 pb-2">
+              <span className="text-zinc-400">Candidate:</span>
               <strong className="text-white">{brief?.name}</strong>
             </div>
             <div className="flex items-center justify-between text-slate-300 border-b border-slate-900 pb-2">
               <span className="text-slate-400">Applied Role:</span>
               <strong className="text-white">{brief?.job_title}</strong>
+            <div className="flex items-center justify-between text-zinc-300 border-b border-white/10 pb-2">
+              <span className="text-zinc-400">Applied Role:</span>
+              <strong className="text-teal-300">{brief?.job_title}</strong>
             </div>
             <div className="flex items-center justify-between text-slate-300 border-b border-slate-900 pb-2">
               <span className="text-slate-400">Recording Consent:</span>
               <span className="text-emerald-400 font-semibold flex items-center gap-1">
+            <div className="flex items-center justify-between text-zinc-300 border-b border-white/10 pb-2">
+              <span className="text-zinc-400">Recording Consent:</span>
+              <span className="text-emerald-400 font-bold flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" /> Granted & Saved
               </span>
             </div>
             <div className="flex items-start justify-between text-slate-300 pt-1">
               <span className="text-slate-400 shrink-0">Stated Availability:</span>
               <span className="text-slate-200 text-right font-medium max-w-[280px]">
+            <div className="flex items-start justify-between text-zinc-300 pt-1">
+              <span className="text-zinc-400 shrink-0">Stated Availability:</span>
+              <span className="text-zinc-100 text-right font-semibold max-w-[280px]">
                 {availability || 'Flexible next week'}
               </span>
             </div>
@@ -790,12 +854,14 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                 else window.location.href = '/';
               }}
               className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition cursor-pointer shadow-lg shadow-blue-600/30 text-center"
+              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs font-bold transition cursor-pointer shadow-lg shadow-teal-600/30 text-center"
             >
               ← Return to Careers Portal
             </button>
             <button
               onClick={handleRetakeCall}
               className="py-3 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
+              className="py-3 px-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-zinc-200 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Retake Voice Call
@@ -813,13 +879,24 @@ export default function CandidateScreeningPage({ onBackToHome }) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
         <header className="h-16 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
+      <div className="min-h-screen bg-[#060B14] text-zinc-100 flex flex-col font-sans relative overflow-hidden">
+        {/* Animated Aurora Background Orbs */}
+        <div className="w-[500px] h-[500px] rounded-full bg-teal-500/15 blur-3xl absolute -top-28 -left-24 animate-float-orb pointer-events-none" />
+        <div className="w-[500px] h-[500px] rounded-full bg-cyan-500/15 blur-3xl absolute -bottom-28 -right-24 animate-float-orb pointer-events-none" />
+        <div className="inset-0 absolute bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:36px_36px] pointer-events-none" />
+
+        <header className="h-16 border-b border-white/10 bg-zinc-950/60 backdrop-blur-xl px-6 flex items-center justify-between shrink-0 relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-600/20">
               TS
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-zinc-950 font-black text-sm shadow-lg shadow-teal-500/25">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
               <span className="text-sm font-bold text-white tracking-wide">TalentSense AI</span>
               <span className="text-[11px] text-blue-400 block font-medium">Virtual Interview Studio</span>
+              <span className="text-sm font-extrabold text-white tracking-tight">TalentSense Neural Voice</span>
+              <span className="text-[11px] text-teal-400 block font-semibold">ElevenLabs AI Screening Studio</span>
             </div>
           </div>
           <button
@@ -828,8 +905,10 @@ export default function CandidateScreeningPage({ onBackToHome }) {
               else window.location.href = '/';
             }}
             className="text-xs text-slate-400 hover:text-white transition cursor-pointer px-3 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700"
+            className="text-xs font-bold text-zinc-300 hover:text-white transition cursor-pointer px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10"
           >
             ← Exit
+            ← Exit Studio
           </button>
         </header>
 
@@ -837,18 +916,28 @@ export default function CandidateScreeningPage({ onBackToHome }) {
           <div className="max-w-md w-full bg-slate-900/90 border border-slate-800/80 rounded-3xl p-8 text-center space-y-6 shadow-2xl backdrop-blur-xl">
             {/* Dual Illustrated Avatars in Incoming Call */}
             <div className="flex items-center justify-center gap-5 pt-2">
+        <main className="flex-1 flex items-center justify-center p-6 relative z-10">
+          <div className="max-w-lg w-full bg-zinc-900/80 border border-white/15 rounded-3xl p-8 text-center space-y-6 shadow-2xl backdrop-blur-2xl">
+            {/* Dual Illustrated Avatars with Animated Concentric Ripple Rings */}
+            <div className="flex items-center justify-center gap-6 pt-3">
               {/* Recruiter Avatar Image */}
               <div className="relative">
                 <span className="animate-ping absolute -inset-1.5 rounded-full bg-blue-500 opacity-30" />
                 <div className="relative w-20 h-20 rounded-full border-2 border-blue-400 p-1 shadow-xl shadow-blue-500/30 overflow-hidden bg-gradient-to-tr from-blue-950 to-indigo-900 flex items-center justify-center">
+                <span className="animate-ripple-glow absolute -inset-3 rounded-full border-2 border-cyan-400/50" />
+                <span className="animate-ping absolute -inset-1.5 rounded-full bg-cyan-500 opacity-25" />
+                <div className="relative w-24 h-24 rounded-full border-2 border-cyan-400 p-1 shadow-2xl shadow-cyan-500/30 overflow-hidden bg-gradient-to-tr from-cyan-950 via-teal-900 to-zinc-900 flex items-center justify-center">
                   <img
                     src={recruiterAvatar}
                     alt="Sarah Jenkins (Recruiter)"
                     className="w-16 h-16 object-contain object-bottom translate-y-1"
+                    className="w-20 h-20 object-contain object-bottom translate-y-1"
                   />
                 </div>
                 <span className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-600 text-white border-2 border-slate-900 shadow">
                   RECRUITER
+                <span className="absolute -bottom-1.5 inset-x-0 mx-auto w-max px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-gradient-to-r from-cyan-500 to-teal-500 text-zinc-950 shadow">
+                  AI RECRUITER
                 </span>
               </div>
 
@@ -857,18 +946,25 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
                 <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+              {/* Animated Waveform Bridge */}
+              <div className="flex flex-col items-center gap-1">
+                <AudioEqualizer active={true} color="cyan" />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-teal-400">Live Link</span>
               </div>
 
               {/* Candidate Avatar Image */}
               <div className="relative">
                 <div className="w-20 h-20 rounded-full border-2 border-emerald-400 p-1 shadow-xl shadow-emerald-500/30 overflow-hidden bg-gradient-to-tr from-emerald-950 to-teal-900 flex items-center justify-center">
+                <div className="w-24 h-24 rounded-full border-2 border-emerald-400 p-1 shadow-2xl shadow-emerald-500/30 overflow-hidden bg-gradient-to-tr from-emerald-950 via-teal-900 to-zinc-900 flex items-center justify-center">
                   <img
                     src={candidateAvatar}
                     alt={brief?.name || 'Candidate'}
                     className="w-16 h-16 object-contain object-bottom translate-y-1"
+                    className="w-20 h-20 object-contain object-bottom translate-y-1"
                   />
                 </div>
                 <span className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-600 text-white border-2 border-slate-900 shadow">
+                <span className="absolute -bottom-1.5 inset-x-0 mx-auto w-max px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-gradient-to-r from-emerald-400 to-teal-500 text-zinc-950 shadow">
                   YOU
                 </span>
               </div>
@@ -876,13 +972,22 @@ export default function CandidateScreeningPage({ onBackToHome }) {
 
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center justify-center gap-1.5">
+            <div className="space-y-1.5 pt-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
                 <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
                 Incoming Voice AI Screening Call
+                Incoming Neural Voice Screening Call
               </span>
               <h2 className="text-xl font-bold text-white">Sarah Jenkins is calling...</h2>
               <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
                 Calling <strong>{brief?.name || 'Candidate'}</strong> for the{' '}
                 <strong className="text-slate-300">{brief?.job_title || 'Applied Position'}</strong> role at TalentSense.
+              <h2 className="text-2xl font-extrabold text-white tracking-tight pt-1">
+                Sarah Jenkins is calling...
+              </h2>
+              <p className="text-xs text-zinc-300 max-w-sm mx-auto leading-relaxed">
+                Connecting with <strong className="text-white">{brief?.name || 'Candidate'}</strong> for{' '}
+                <strong className="text-teal-300">{brief?.job_title || 'Applied Position'}</strong>
               </p>
             </div>
 
@@ -890,21 +995,32 @@ export default function CandidateScreeningPage({ onBackToHome }) {
               <div className="flex items-center gap-2 text-blue-400 font-semibold text-xs">
                 <Sparkles className="w-4 h-4" />
                 Interactive Studio Experience:
+            <div className="p-4 rounded-2xl bg-black/40 border border-white/10 text-left text-xs space-y-2.5 text-zinc-300">
+              <div className="flex items-center gap-2 text-teal-300 font-bold text-xs">
+                <Sparkles className="w-4 h-4 text-teal-400" />
+                AI Voice Studio Highlights:
               </div>
               <ul className="space-y-2 text-[11px] text-slate-400 pl-4 list-disc">
                 <li><strong className="text-slate-300">Interactive Recruiter:</strong> Sarah will speak role questions aloud.</li>
                 <li><strong className="text-slate-300">Hands-Free Microphone:</strong> Speak naturally; your words stream in real-time.</li>
                 <li><strong className="text-slate-300">Conversational Guard:</strong> Ask any clarification; Sarah will guide you back.</li>
                 <li><strong className="text-slate-300">Duration:</strong> Approximately 3–5 minutes.</li>
+              <ul className="space-y-2 text-[11px] text-zinc-300 pl-4 list-disc">
+                <li><strong className="text-white">ElevenLabs Neural Voice:</strong> Sarah speaks questions aloud right in your browser.</li>
+                <li><strong className="text-white">Hands-Free Live Mic:</strong> Speak naturally; your voice streams into real-time text.</li>
+                <li><strong className="text-white">Conversational Guard:</strong> Ask clarifying questions anytime during the call.</li>
               </ul>
             </div>
 
             <button
               onClick={handleStartCall}
               className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold flex items-center justify-center gap-2.5 shadow-xl shadow-emerald-600/30 transition transform hover:-translate-y-0.5 cursor-pointer"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-600 hover:from-teal-400 hover:to-emerald-500 text-zinc-950 text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl shadow-emerald-500/25 transition transform hover:-translate-y-0.5 cursor-pointer"
             >
               <PhoneCall className="w-5 h-5 animate-pulse" />
               Answer Call & Enable Microphone
+              <PhoneCall className="w-5 h-5 animate-bounce" />
+              Answer Call & Launch Voice Studio
             </button>
           </div>
         </main>
@@ -914,6 +1030,7 @@ export default function CandidateScreeningPage({ onBackToHome }) {
 
   // =========================================================================
   // SCREEN 3: ACTIVE CONVERSATIONAL VOICE SCREENING CALL (DUAL-AVATAR STAGE)
+  // SCREEN 3: ACTIVE CONVERSATIONAL VOICE SCREENING CALL (ANIMATED STUDIO STAGE)
   // =========================================================================
   const isCandidateTurn = !isSpeaking;
 
@@ -924,17 +1041,45 @@ export default function CandidateScreeningPage({ onBackToHome }) {
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-blue-600/20">
             TS
+    <div className="min-h-screen bg-[#050A12] text-zinc-100 flex flex-col font-sans select-none relative overflow-hidden">
+      {/* Dynamic Animated Aurora Orbs & Studio Grid */}
+      <div
+        className={`w-[560px] h-[560px] rounded-full blur-3xl absolute -top-32 -left-24 pointer-events-none transition-all duration-700 animate-float-orb ${
+          isSpeaking ? 'bg-cyan-500/25 scale-110' : 'bg-cyan-500/8 scale-95'
+        }`}
+      />
+      <div
+        className={`w-[560px] h-[560px] rounded-full blur-3xl absolute -bottom-32 -right-24 pointer-events-none transition-all duration-700 animate-float-orb ${
+          isListening ? 'bg-emerald-500/25 scale-110' : 'bg-teal-500/10 scale-95'
+        }`}
+      />
+      <div className="inset-0 absolute bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:36px_36px] pointer-events-none" />
+
+      {/* Top Glass Studio Header */}
+      <header className="h-16 border-b border-white/10 bg-zinc-950/75 backdrop-blur-xl px-6 flex items-center justify-between shrink-0 relative z-20">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-zinc-950 font-black text-sm shadow-lg shadow-teal-500/25">
+            <Sparkles className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-white">TalentSense AI Voice Studio</span>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 shadow-inner">
+            <div className="flex items-center gap-2.5">
+              <span className="text-sm font-extrabold text-white tracking-tight">
+                TalentSense Neural Voice Studio
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-400/30 flex items-center gap-1.5 shadow-inner font-mono">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 Live: {formatDuration(callDuration)}
+                LIVE · {formatDuration(callDuration)}
               </span>
             </div>
             <p className="text-[11px] text-slate-400 truncate max-w-md">
               Candidate: <strong className="text-slate-200">{brief?.name}</strong> · Role: <strong className="text-slate-200">{brief?.job_title}</strong>
+            <p className="text-[11px] text-zinc-400 truncate max-w-md mt-0.5">
+              Candidate: <strong className="text-white">{brief?.name}</strong> · Role:{' '}
+              <strong className="text-teal-300">{brief?.job_title}</strong>
             </p>
           </div>
         </div>
@@ -947,6 +1092,7 @@ export default function CandidateScreeningPage({ onBackToHome }) {
             else window.location.href = '/';
           }}
           className="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 transition cursor-pointer"
+          className="text-xs font-bold text-rose-300 hover:text-white hover:bg-rose-600 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-500/15 border border-rose-500/30 transition cursor-pointer shadow-sm"
         >
           <PhoneOff className="w-3.5 h-3.5" />
           End Call
@@ -967,49 +1113,87 @@ export default function CandidateScreeningPage({ onBackToHome }) {
           </div>
 
           <div className="flex items-center gap-2">
+      {/* Interactive Connected Step Timeline Header */}
+      <div className="bg-zinc-900/50 border-b border-white/10 px-6 py-3 backdrop-blur-md relative z-20">
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 overflow-x-auto py-0.5">
             {Array.from({ length: totalSteps }).map((_, idx) => {
               const isPast = idx < step;
               const isCurrent = idx === step;
               return (
                 <div key={idx} className="flex items-center gap-1.5">
+                <div key={idx} className="flex items-center gap-2">
                   <div
                     className={`h-2 rounded-full transition-all duration-300 ${
+                    className={`px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all ${
                       isCurrent
                         ? 'w-8 bg-blue-500 shadow-md shadow-blue-500/50'
+                        ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-zinc-950 shadow-md shadow-teal-500/30 scale-105'
                         : isPast
                         ? 'w-5 bg-emerald-500'
                         : 'w-4 bg-slate-700'
+                        ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                        : 'bg-white/5 text-zinc-500 border border-white/10'
                     }`}
                   />
+                  >
+                    {isPast ? (
+                      <Check className="w-3 h-3 text-emerald-400 stroke-[3]" />
+                    ) : (
+                      <span className="font-mono">{idx + 1}.</span>
+                    )}
+                    <span>{getStepTitle(idx)}</span>
+                  </div>
+                  {idx < totalSteps - 1 && (
+                    <div className={`w-5 h-0.5 rounded-full ${isPast ? 'bg-emerald-500/60' : 'bg-white/10'}`} />
+                  )}
                 </div>
               );
             })}
           </div>
+
+          <span className="text-xs font-mono font-bold text-teal-300 bg-teal-500/10 border border-teal-500/20 px-2.5 py-1 rounded-lg">
+            Step {step + 1} / {totalSteps}
+          </span>
         </div>
       </div>
 
       {/* Main Calling Stage: Dual Avatars */}
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pb-28">
+      {/* Main Calling Stage: Dual Animated Voice Orbs & Teleprompter */}
+      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pb-28 relative z-10">
         <div className="max-w-5xl w-full space-y-4">
 
           {/* Turn Flow Banner */}
+          {/* Animated Live Turn Status Pill */}
           <div className="flex items-center justify-center">
             {isSpeaking ? (
               <div className="px-4 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 text-xs font-semibold flex items-center gap-2 animate-pulse shadow-md">
                 <Volume2 className="w-3.5 h-3.5 text-blue-400" />
                 <span>Sarah Jenkins (AI Recruiter) is speaking...</span>
                 <AudioEqualizer active={true} color="blue" />
+              <div className="px-5 py-2 rounded-full bg-cyan-500/15 border border-cyan-400/40 text-cyan-200 text-xs font-bold flex items-center gap-2.5 shadow-lg shadow-cyan-950/60 backdrop-blur-xl">
+                <Volume2 className="w-4 h-4 text-cyan-300 animate-bounce" />
+                <span>Sarah Jenkins (ElevenLabs AI Recruiter) is speaking...</span>
+                <AudioEqualizer active={true} color="cyan" />
               </div>
             ) : isListening ? (
               <div className="px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-2 shadow-md">
                 <Mic className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
                 <span>Your turn to speak · Microphone is listening!</span>
                 <AudioEqualizer active={micVolume > 5 || isListening} color="emerald" />
+              <div className="px-5 py-2 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 text-xs font-bold flex items-center gap-2.5 shadow-lg shadow-emerald-950/60 backdrop-blur-xl">
+                <Mic className="w-4 h-4 text-emerald-400 animate-pulse" />
+                <span>Your Turn to Speak · Live Microphone Active</span>
+                <AudioEqualizer active={micVolume > 4 || isListening} color="emerald" />
               </div>
             ) : (
               <div className="px-4 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
                 <span>Answer recorded · Click Confirm & Next Question</span>
+              <div className="px-5 py-2 rounded-full bg-white/5 border border-white/15 text-zinc-200 text-xs font-bold flex items-center gap-2 backdrop-blur-xl">
+                <Clock className="w-3.5 h-3.5 text-teal-400" />
+                <span>Response captured · Click Confirm & Next Question below</span>
               </div>
             )}
           </div>
@@ -1017,9 +1201,11 @@ export default function CandidateScreeningPage({ onBackToHome }) {
           {/* Validation / Off-Topic Guard Notification Banner */}
           {validationWarning && (
             <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs flex items-center gap-3 animate-pulse shadow-lg">
+            <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 text-xs flex items-center gap-3 shadow-lg backdrop-blur-xl">
               <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
               <div className="flex-1 font-medium leading-relaxed">
                 <span className="font-bold text-amber-300">Recruiter Clarification: </span>
+                <span className="font-bold text-amber-300">Recruiter Guidance: </span>
                 {validationWarning}
               </div>
             </div>
@@ -1027,15 +1213,21 @@ export default function CandidateScreeningPage({ onBackToHome }) {
 
           {/* Two-Column Avatar Stage */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Two-Column Animated Studio Stage */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
 
             {/* =================================================================== */}
             {/* AVATAR CARD 1: AI RECRUITER (SARAH JENKINS) */}
+            {/* POD 1: AI RECRUITER (SARAH JENKINS — ANIMATED NEURAL VOICE STAGE) */}
             {/* =================================================================== */}
             <div
               className={`rounded-3xl border transition-all duration-300 p-6 flex flex-col justify-between backdrop-blur-xl ${
+              className={`rounded-3xl border transition-all duration-500 p-6 flex flex-col justify-between backdrop-blur-2xl relative overflow-hidden ${
                 isSpeaking
                   ? 'bg-slate-900/95 border-blue-500 ring-2 ring-blue-500/40 shadow-2xl shadow-blue-500/20 scale-[1.01]'
                   : 'bg-slate-900/60 border-slate-800/80 shadow-lg opacity-85'
+                  ? 'bg-gradient-to-b from-cyan-950/60 via-zinc-900/95 to-zinc-950/95 border-cyan-400 ring-2 ring-cyan-400/30 shadow-2xl shadow-cyan-500/20 scale-[1.01]'
+                  : 'bg-zinc-900/65 border-white/10 shadow-xl opacity-90'
               }`}
             >
               {/* Recruiter Header Profile */}
@@ -1060,6 +1252,15 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                         src={recruiterAvatar}
                         alt="Sarah Jenkins"
                         className="w-14 h-14 object-contain object-bottom translate-y-1"
+              {/* Top Animated Avatar Orb Stage + Multi-Bar Waveform */}
+              <div className="flex flex-col items-center text-center pt-1 pb-4 border-b border-white/10 space-y-3">
+                <div className="relative flex items-center justify-center">
+                  {isSpeaking && (
+                    <>
+                      <span className="animate-ripple-glow absolute -inset-4 rounded-full border-2 border-cyan-400/60" />
+                      <span
+                        className="animate-ripple-glow absolute -inset-7 rounded-full border border-teal-400/35"
+                        style={{ animationDelay: '0.6s' }}
                       />
                     </div>
                     {isSpeaking && (
@@ -1067,7 +1268,32 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                       </span>
                     )}
+                      <span className="animate-ping absolute -inset-2 rounded-full bg-cyan-400/25" />
+                    </>
+                  )}
+                  <div
+                    className={`relative w-24 h-24 rounded-full overflow-hidden transition-all duration-300 flex items-center justify-center ${
+                      isSpeaking
+                        ? 'bg-gradient-to-tr from-cyan-900 via-teal-800 to-zinc-900 border-2 border-cyan-300 ring-4 ring-cyan-500/30 shadow-2xl shadow-cyan-500/40 scale-105'
+                        : 'bg-zinc-800/90 border-2 border-white/15'
+                    }`}
+                  >
+                    <img
+                      src={recruiterAvatar}
+                      alt="Sarah Jenkins"
+                      className="w-20 h-20 object-contain object-bottom translate-y-1"
+                    />
                   </div>
+                  <span
+                    className={`absolute -bottom-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-wider uppercase shadow ${
+                      isSpeaking
+                        ? 'bg-gradient-to-r from-cyan-400 to-teal-400 text-zinc-950'
+                        : 'bg-zinc-800 text-zinc-300 border border-white/15'
+                    }`}
+                  >
+                    {isSpeaking ? '● Speaking Live' : 'AI Talent Lead'}
+                  </span>
+                </div>
 
                   <div>
                     <div className="flex items-center gap-2">
@@ -1078,6 +1304,11 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                     </div>
                     <p className="text-[11px] text-slate-400">Talent Acquisition Lead · TalentSense</p>
                   </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-white tracking-tight">Sarah Jenkins</h3>
+                  <p className="text-[11px] text-cyan-300/90 font-medium">
+                    Talent Acquisition Lead · ElevenLabs Neural Voice
+                  </p>
                 </div>
 
                 {/* Recruiter Status Pill */}
@@ -1091,6 +1322,8 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                     👂 Listening
                   </span>
                 )}
+                {/* 20-Bar Animated Studio Soundwave */}
+                <StudioWaveform active={isSpeaking} color="cyan" volume={85} />
               </div>
 
               {/* Recruiter Speech Bubble */}
@@ -1099,13 +1332,27 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                   <div className="text-[10px] font-bold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
                     <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
                     Question {step === 0 ? 'Consent' : step}:
+              {/* Recruiter Teleprompter Speech Card */}
+              <div className="my-4 flex-1 flex flex-col justify-center">
+                <div className="p-4 rounded-2xl bg-black/45 border border-white/10 relative space-y-2 shadow-inner">
+                  <div className="text-[10px] font-extrabold uppercase tracking-widest text-cyan-300 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
+                      {step === 0 ? 'Consent & Disclosure Prompt' : `Question ${step} of ${questions.length}`}
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-mono">AGENT-02</span>
                   </div>
                   <p className="text-sm font-medium text-slate-100 leading-relaxed">
+                  <p className="text-sm font-semibold text-white leading-relaxed">
                     "{currentPrompt}"
                   </p>
                   {validationWarning && (
                     <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs mt-2 space-y-1">
                       <div className="text-[10px] font-bold uppercase text-amber-400">Sarah's Answer to Your Question:</div>
+                    <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-200 text-xs mt-2 space-y-1">
+                      <div className="text-[10px] font-bold uppercase text-amber-300">
+                        Sarah's Live Clarification:
+                      </div>
                       <p className="leading-relaxed font-normal">{validationWarning}</p>
                     </div>
                   )}
@@ -1116,6 +1363,8 @@ export default function CandidateScreeningPage({ onBackToHome }) {
               <div className="pt-2 flex items-center justify-between text-xs">
                 <span className="text-[11px] text-slate-400">
                   {isSpeaking ? 'Speaking question aloud...' : 'Voice audio played'}
+                <span className="text-[11px] text-zinc-400 font-medium">
+                  {isSpeaking ? 'Streaming neural voice audio...' : 'Question spoken aloud'}
                 </span>
                 <button
                   type="button"
@@ -1124,25 +1373,38 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                     else speakText(currentPrompt);
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer shadow-md ${
                     isSpeaking
                       ? 'bg-amber-600 hover:bg-amber-500 text-white animate-pulse'
                       : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                      ? 'bg-amber-500 hover:bg-amber-400 text-zinc-950'
+                      : 'bg-white/10 hover:bg-white/15 text-white border border-white/15'
                   }`}
                 >
                   {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-blue-400" />}
                   {isSpeaking ? 'Stop Audio' : 'Replay Question'}
+                  {isSpeaking ? (
+                    <VolumeX className="w-3.5 h-3.5" />
+                  ) : (
+                    <Volume2 className="w-3.5 h-3.5 text-cyan-300" />
+                  )}
+                  {isSpeaking ? 'Stop Audio' : 'Replay Voice'}
                 </button>
               </div>
             </div>
 
             {/* =================================================================== */}
             {/* AVATAR CARD 2: CANDIDATE (YOU) */}
+            {/* POD 2: CANDIDATE LIVE VOICE STUDIO (YOU) */}
             {/* =================================================================== */}
             <div
               className={`rounded-3xl border transition-all duration-300 p-6 flex flex-col justify-between backdrop-blur-xl ${
+              className={`rounded-3xl border transition-all duration-500 p-6 flex flex-col justify-between backdrop-blur-2xl relative overflow-hidden ${
                 isCandidateTurn
                   ? 'bg-slate-900/95 border-emerald-500 ring-2 ring-emerald-500/40 shadow-2xl shadow-emerald-500/20 scale-[1.01]'
                   : 'bg-slate-900/60 border-slate-800/80 shadow-lg opacity-85'
+                  ? 'bg-gradient-to-b from-emerald-950/60 via-zinc-900/95 to-zinc-950/95 border-emerald-400 ring-2 ring-emerald-400/30 shadow-2xl shadow-emerald-500/20 scale-[1.01]'
+                  : 'bg-zinc-900/65 border-white/10 shadow-xl opacity-90'
               }`}
             >
               {/* Candidate Header Profile */}
@@ -1167,6 +1429,15 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                         src={candidateAvatar}
                         alt={brief?.name || 'Candidate'}
                         className="w-14 h-14 object-contain object-bottom translate-y-1"
+              {/* Top Animated Candidate Avatar Stage + Live Mic Waveform */}
+              <div className="flex flex-col items-center text-center pt-1 pb-4 border-b border-white/10 space-y-3">
+                <div className="relative flex items-center justify-center">
+                  {isListening && (
+                    <>
+                      <span className="animate-ripple-glow absolute -inset-4 rounded-full border-2 border-emerald-400/60" />
+                      <span
+                        className="animate-ripple-glow absolute -inset-7 rounded-full border border-teal-400/35"
+                        style={{ animationDelay: '0.6s' }}
                       />
                     </div>
                     {isListening && (
@@ -1174,6 +1445,21 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                       </span>
                     )}
+                      <span className="animate-ping absolute -inset-2 rounded-full bg-emerald-400/25" />
+                    </>
+                  )}
+                  <div
+                    className={`relative w-24 h-24 rounded-full overflow-hidden transition-all duration-300 flex items-center justify-center ${
+                      isListening
+                        ? 'bg-gradient-to-tr from-emerald-900 via-teal-800 to-zinc-900 border-2 border-emerald-300 ring-4 ring-emerald-500/30 shadow-2xl shadow-emerald-500/40 scale-105'
+                        : 'bg-zinc-800/90 border-2 border-white/15'
+                    }`}
+                  >
+                    <img
+                      src={candidateAvatar}
+                      alt={brief?.name || 'Candidate'}
+                      className="w-20 h-20 object-contain object-bottom translate-y-1"
+                    />
                   </div>
 
                   <div>
@@ -1187,11 +1473,25 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                       {brief?.job_title || 'Applied Applicant'}
                     </p>
                   </div>
+                  <span
+                    className={`absolute -bottom-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-wider uppercase shadow ${
+                      isListening
+                        ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-zinc-950'
+                        : isCurrentAnswerValid
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-zinc-800 text-zinc-300 border border-white/15'
+                    }`}
+                  >
+                    {isListening ? '● Mic Listening' : isCurrentAnswerValid ? '✓ Answer Ready' : 'Your Turn'}
+                  </span>
                 </div>
 
                 {/* Candidate Mic Status Pill & Language Selector */}
                 <div className="flex items-center gap-2">
                   {/* Language Selector Pill */}
+                  <h3 className="text-base font-extrabold text-white tracking-tight">
+                    {brief?.name || 'Candidate'}
+                  </h3>
                   <select
                     value={speechLang}
                     onChange={(e) => {
@@ -1203,12 +1503,15 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                       }
                     }}
                     className="bg-slate-950 border border-slate-700 text-slate-300 text-[10px] rounded-lg px-2 py-1 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    className="bg-black/50 border border-white/15 text-teal-300 text-[10px] font-bold rounded-lg px-2 py-1 focus:outline-none focus:border-emerald-400 cursor-pointer"
                     title="Select Speech Recognition Accent/Language"
                   >
                     <option value="en-US">🇺🇸 English (US)</option>
                     <option value="en-PK">🇵🇰 English (Pakistani)</option>
+                    <option value="en-PK">🇵🇰 English (PK)</option>
                     <option value="ur-PK">🇵🇰 Urdu (اردو)</option>
                   </select>
+                </div>
 
                   {isListening ? (
                     <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1.5 animate-pulse">
@@ -1225,29 +1528,37 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                     </span>
                   )}
                 </div>
+                {/* 20-Bar Animated Candidate Microphone Soundwave */}
+                <StudioWaveform active={isListening} color="emerald" volume={Math.max(35, micVolume)} />
               </div>
 
               {/* Candidate Spoken Transcript & Text Area */}
               <div className="my-3 flex-1 flex flex-col justify-center space-y-2">
+              <div className="my-4 flex-1 flex flex-col justify-center space-y-2.5">
                 <div className="relative">
                   <textarea
                     rows={4}
+                    rows={3}
                     data-gramm="false"
                     data-gramm_editor="false"
                     data-enable-grammarly="false"
                     spellCheck="false"
                     placeholder="Speak naturally into your microphone. Your spoken words appear here in real time (or you may type)..."
+                    placeholder="Speak naturally into your microphone — your spoken words stream here live (or type directly)..."
                     value={answers[currentKey] || ''}
                     onChange={(e) => {
                       setAnswers({ ...answers, [currentKey]: e.target.value });
                       if (validationWarning) setValidationWarning('');
                     }}
                     className="w-full rounded-2xl bg-slate-950/80 border border-slate-700/80 p-3.5 pr-28 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 leading-relaxed font-sans resize-none transition"
+                    className="w-full rounded-2xl bg-black/50 border border-white/15 p-3.5 pr-28 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-400 leading-relaxed font-sans resize-none transition shadow-inner"
                   />
                   {isListening && (
                     <span className="absolute right-3 top-3 flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/90 px-2 py-0.5 rounded-full border border-emerald-700 shadow-md">
+                    <span className="absolute right-3 top-3 flex items-center gap-1.5 text-[10px] font-bold text-emerald-300 bg-emerald-950/90 px-2.5 py-0.5 rounded-full border border-emerald-500/40 shadow-md">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                       Listening now...
+                      Live STT
                     </span>
                   )}
                 </div>
@@ -1255,6 +1566,8 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                 {/* Quick 1-Tap Response Chips */}
                 <div className="flex items-center gap-1.5 flex-wrap pt-1">
                   <span className="text-[10px] font-semibold text-slate-400">Quick options:</span>
+                <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                  <span className="text-[10px] font-bold text-zinc-400">1-Tap Voice Reply:</span>
                   {getQuickSuggestions(step).map((sugg, sIdx) => (
                     <button
                       key={sIdx}
@@ -1267,6 +1580,7 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                         if (validationWarning) setValidationWarning('');
                       }}
                       className="text-[10px] text-blue-400 hover:text-blue-300 hover:bg-blue-900/50 font-semibold cursor-pointer bg-blue-950/60 border border-blue-900/70 px-2 py-1 rounded-lg transition"
+                      className="text-[10px] text-teal-300 hover:text-zinc-950 hover:bg-teal-400 font-bold cursor-pointer bg-teal-500/10 border border-teal-500/30 px-2.5 py-1 rounded-lg transition"
                     >
                       {sugg.label}
                     </button>
@@ -1279,13 +1593,18 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] text-slate-400">
                     {isListening ? '🎙️ Continuous Auto-Mic' : 'Microphone paused'}
+                  <span className="text-[11px] text-zinc-400 font-medium">
+                    {isListening ? '🎙️ Auto-Mic Streaming' : 'Mic Paused'}
                   </span>
                   {/* Real decibel visual indicator */}
                   {isListening && (
                     <div className="w-16 h-1.5 rounded-full bg-slate-800 overflow-hidden" title="Live audio input volume">
+                    <div className="w-16 h-1.5 rounded-full bg-white/10 overflow-hidden" title="Live audio input volume">
                       <div
                         className="h-full bg-emerald-400 transition-all duration-75"
                         style={{ width: `${Math.max(10, micVolume)}%` }}
+                        className="h-full bg-gradient-to-r from-teal-400 to-emerald-400 transition-all duration-75"
+                        style={{ width: `${Math.max(12, micVolume)}%` }}
                       />
                     </div>
                   )}
@@ -1302,9 +1621,11 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                         startListening(currentKey);
                       }}
                       className="text-[10px] text-slate-400 hover:text-white px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 cursor-pointer"
+                      className="text-[10px] font-bold text-zinc-300 hover:text-white px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 cursor-pointer"
                       title="Clear text and re-record this question"
                     >
                       Clear & Re-talk
+                      Clear
                     </button>
                   )}
 
@@ -1318,9 +1639,12 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                       }
                     }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-md ${
+                    className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer shadow-md ${
                       isListening
                         ? 'bg-rose-600 hover:bg-rose-500 text-white ring-2 ring-rose-400/40 shadow-rose-600/30'
                         : 'bg-emerald-600 hover:bg-emerald-500 text-white ring-2 ring-emerald-400/40 shadow-emerald-600/20'
+                        ? 'bg-rose-600 hover:bg-rose-500 text-white ring-2 ring-rose-400/40'
+                        : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950'
                     }`}
                   >
                     {isListening ? (
@@ -1345,9 +1669,11 @@ export default function CandidateScreeningPage({ onBackToHome }) {
 
       {/* ========================================================================= */}
       {/* FLOATING STUDIO CALL CONTROLS DOCK (BOTTOM) */}
+      {/* FLOATING GLASS STUDIO CALL CONTROLS DOCK (BOTTOM) */}
       {/* ========================================================================= */}
       <footer className="fixed bottom-4 inset-x-0 mx-auto max-w-3xl px-4 z-40 pointer-events-auto">
         <div className="bg-slate-900/95 border border-slate-700/80 rounded-2xl p-3 shadow-2xl backdrop-blur-2xl flex items-center justify-between gap-3">
+        <div className="bg-zinc-900/90 border border-white/15 rounded-2xl p-3 shadow-2xl backdrop-blur-2xl flex items-center justify-between gap-3">
           {/* Previous Question Button */}
           <button
             type="button"
@@ -1359,6 +1685,7 @@ export default function CandidateScreeningPage({ onBackToHome }) {
               setStep((s) => Math.max(0, s - 1));
             }}
             className="px-3.5 py-2 rounded-xl border border-slate-700 text-slate-300 text-xs font-semibold hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition"
+            className="px-4 py-2 rounded-xl border border-white/15 text-zinc-200 text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition"
           >
             ← Previous
           </button>
@@ -1366,16 +1693,23 @@ export default function CandidateScreeningPage({ onBackToHome }) {
           {/* Center Call Audio Status */}
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 text-xs">
             <span className="text-slate-400">Audio Mode:</span>
+          <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-black/50 border border-white/10 text-xs">
+            <span className="text-zinc-400 font-medium">Studio Channel:</span>
             {isSpeaking ? (
               <span className="text-blue-400 font-bold flex items-center gap-1">
                 <Volume2 className="w-3.5 h-3.5 animate-pulse" /> AI Speaking
+              <span className="text-cyan-300 font-bold flex items-center gap-1.5">
+                <Volume2 className="w-3.5 h-3.5 animate-pulse" /> Sarah Speaking
               </span>
             ) : isListening ? (
               <span className="text-emerald-400 font-bold flex items-center gap-1">
                 <Mic className="w-3.5 h-3.5 animate-pulse" /> Candidate Mic
+              <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                <Mic className="w-3.5 h-3.5 animate-pulse" /> Candidate Mic Live
               </span>
             ) : (
               <span className="text-slate-400">Ready</span>
+              <span className="text-teal-300 font-semibold">Ready to Advance</span>
             )}
           </div>
 
@@ -1388,15 +1722,19 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                 onClick={handleNextStep}
                 title={!isCurrentAnswerValid ? "Please speak or select an answer before moving forward" : ""}
                 className={`px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition cursor-pointer ${
+                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg transition cursor-pointer ${
                   isCurrentAnswerValid && !isEvaluating
                     ? 'bg-blue-600 hover:bg-blue-500 text-white ring-2 ring-blue-400/40 shadow-blue-500/30'
                     : 'bg-slate-800 text-slate-400 border border-slate-700 opacity-60 cursor-not-allowed'
+                    ? 'bg-gradient-to-r from-teal-400 to-emerald-500 hover:from-teal-300 hover:to-emerald-400 text-zinc-950 shadow-teal-500/25'
+                    : 'bg-white/5 text-zinc-500 border border-white/10 opacity-60 cursor-not-allowed'
                 }`}
               >
                 {isEvaluating ? (
                   <>
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     Reviewing Answer...
+                    Checking Response...
                   </>
                 ) : (
                   <>
@@ -1412,9 +1750,12 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                 onClick={handleFinishCall}
                 title={!isCurrentAnswerValid ? "Please provide your availability before finishing the call" : ""}
                 className={`px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xl transition cursor-pointer ${
+                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-xl transition cursor-pointer ${
                   isCurrentAnswerValid && !isEvaluating
                     ? 'bg-emerald-600 hover:bg-emerald-500 text-white ring-2 ring-emerald-400/40 shadow-emerald-500/30'
                     : 'bg-slate-800 text-slate-400 border border-slate-700 opacity-60 cursor-not-allowed'
+                    ? 'bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-zinc-950 shadow-emerald-500/30'
+                    : 'bg-white/5 text-zinc-500 border border-white/10 opacity-60 cursor-not-allowed'
                 }`}
               >
                 <CheckCircle2 className="w-4 h-4" />
@@ -1422,9 +1763,12 @@ export default function CandidateScreeningPage({ onBackToHome }) {
                   ? 'Saying Goodbye...'
                   : submitting
                   ? 'Submitting Responses...'
+                  ? 'Saving Transcript...'
                   : isEvaluating
                   ? 'Checking Answer...'
                   : 'Finish Call & Submit'}
+                  ? 'Checking Response...'
+                  : 'Complete Call & Submit'}
               </button>
             )}
           </div>

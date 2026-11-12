@@ -190,21 +190,21 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/70 backdrop-blur-sm p-4 overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-3xl w-full shadow-2xl overflow-hidden my-6 flex flex-col max-h-[92vh]">
+      <div className="bg-white border border-zinc-200 rounded-3xl max-w-3xl w-full shadow-2xl overflow-hidden my-6 flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="px-7 py-5 bg-slate-900 text-white flex items-center justify-between gap-4 shrink-0">
+        <div className="px-7 py-5 bg-[#0B121E] text-white flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow">
+            <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white shadow">
               <Briefcase className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">Create New Job Requisition</h2>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-zinc-300">
                 Publish a job to the Public Careers Site and configure Agent 1 & Agent 2 rules.
               </p>
             </div>
@@ -214,7 +214,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
             <button
               type="button"
               onClick={() => applyTemplate(JOB_TEMPLATES[0])}
-              className="px-3 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600 border border-blue-400/40 text-blue-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-teal-600/20 hover:bg-teal-600 border border-teal-400/40 text-teal-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               Auto-Fill Sample Job
@@ -222,7 +222,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer"
+              className="p-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -238,9 +238,9 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
           )}
 
           {/* Quick Job Templates Bar */}
-          <div className="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-2">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-blue-800 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+          <div className="p-3.5 rounded-2xl bg-teal-50/70 border border-teal-200 space-y-2">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-teal-600" />
               Quick Fill Dummy Real Job Templates (1-Click)
             </div>
             <div className="flex flex-wrap gap-2">
@@ -249,7 +249,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
                   key={tpl.label}
                   type="button"
                   onClick={() => applyTemplate(tpl)}
-                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-blue-600 hover:text-white border border-blue-200 text-slate-800 text-xs font-semibold transition shadow-2xs cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-teal-600 hover:text-white border border-teal-200 text-zinc-800 text-xs font-semibold transition shadow-2xs cursor-pointer"
                 >
                   + {tpl.label}
                 </button>
@@ -259,45 +259,45 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
 
           {/* Section 1: Basic Job Details */}
           <div className="space-y-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-blue-600 border-b border-slate-100 pb-1.5">
+            <div className="text-xs font-bold uppercase tracking-wider text-teal-600 border-b border-zinc-100 pb-1.5">
               1. Job Requisition Details
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">Job Title *</label>
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">Job Title *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g., Senior AI / Machine Learning Engineer"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">Department *</label>
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">Department *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g., Applied AI & Engineering"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                   Location & Work Arrangement *
                 </label>
                 <select
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 >
                   <option value="Hybrid (Lahore / Remote)">Hybrid (Lahore / Remote)</option>
                   <option value="Remote (Global / Anywhere)">Remote (Global / Anywhere)</option>
@@ -308,7 +308,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                   Minimum Experience Required (Years)
                 </label>
                 <input
@@ -317,25 +317,25 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
                   min="0"
                   value={minExp}
                   onChange={(e) => setMinExp(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-blue-700 font-bold">
+              <label className="block text-xs font-bold text-zinc-700 mb-1.5 flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-teal-700 font-bold">
                   <UserCheck className="w-3.5 h-3.5" />
                   Assign Department Team Lead / Interviewer *
                 </span>
-                <span className="text-[11px] text-slate-400 font-normal">
+                <span className="text-[11px] text-zinc-400 font-normal">
                   Assigned automatically for technical interviews & briefing emails
                 </span>
               </label>
               <select
                 value={assignedInterviewerId}
                 onChange={(e) => setAssignedInterviewerId(e.target.value)}
-                className="w-full rounded-xl bg-blue-50/50 border border-blue-200 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl bg-teal-50/50 border border-teal-200 px-3.5 py-2.5 text-sm font-semibold text-zinc-800 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
               >
                 {AVAILABLE_INTERVIEWERS.map((lead) => (
                   <option key={lead.id} value={lead.id}>
@@ -346,7 +346,7 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                 Approved Job Description (JD) *
               </label>
               <textarea
@@ -355,13 +355,13 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
                 placeholder="Describe responsibilities, expectations, and technical environment..."
                 value={jd}
                 onChange={(e) => setJd(e.target.value)}
-                className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                   Must-Have / Required Skills (comma-separated) *
                 </label>
                 <input
@@ -370,12 +370,12 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
                   placeholder="e.g., Python, Machine Learning, FastAPI, SQL"
                   value={reqSkills}
                   onChange={(e) => setReqSkills(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                   Preferred / Bonus Skills (comma-separated)
                 </label>
                 <input
@@ -383,21 +383,21 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
                   placeholder="e.g., Docker, LangChain, PyTorch, AWS"
                   value={prefSkills}
                   onChange={(e) => setPrefSkills(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
             </div>
           </div>
 
           {/* Section 2: Agent 1 Configurable Scoring Rubric */}
-          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+          <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-600 flex items-center gap-1.5">
                   <Sliders className="w-4 h-4" />
                   2. Agent 1 — Configurable Resume Evaluation Rubric
                 </span>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-zinc-500 mt-0.5">
                   Set how Agent 1 weights each criterion when scoring uploaded resumes (Must sum to 100%).
                 </p>
               </div>
@@ -420,36 +420,36 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
                 ['education_certifications', 'Education %'],
                 ['other_job_related_evidence', 'Other/Bonus %'],
               ].map(([key, label]) => (
-                <div key={key} className="bg-white p-3 rounded-xl border border-slate-200">
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">{label}</label>
+                <div key={key} className="bg-white p-3 rounded-xl border border-zinc-200">
+                  <label className="block text-[11px] font-bold text-zinc-600 mb-1">{label}</label>
                   <input
                     type="number"
                     min="0"
                     max="100"
                     value={rubric[key]}
                     onChange={(e) => setRubric({ ...rubric, [key]: e.target.value })}
-                    className="w-full rounded-lg bg-slate-50 border border-slate-300 px-2.5 py-1.5 text-sm font-bold text-slate-900"
+                    className="w-full rounded-lg bg-zinc-50 border border-zinc-300 px-2.5 py-1.5 text-sm font-bold text-zinc-900"
                   />
                 </div>
               ))}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-zinc-700 mb-1">
                 Rubric Weight Justification (Recorded for Auditability)
               </label>
               <input
                 type="text"
                 value={rubric.justification}
                 onChange={(e) => setRubric({ ...rubric, justification: e.target.value })}
-                className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-xs text-slate-800"
+                className="w-full rounded-xl bg-white border border-zinc-300 px-3.5 py-2 text-xs text-zinc-800"
               />
             </div>
           </div>
 
           {/* Section 3: Agent 2 Approved Screening Call Questions */}
           <div className="space-y-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-blue-600 border-b border-slate-100 pb-1.5">
+            <div className="text-xs font-bold uppercase tracking-wider text-teal-600 border-b border-zinc-100 pb-1.5">
               3. Agent 2 — Approved Screening Call Questions
             </div>
 
@@ -457,15 +457,15 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
               {questionsList.map((q, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800"
+                  className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-800"
                 >
                   <span>
-                    <strong className="text-blue-600">Q{idx + 1}:</strong> {q}
+                    <strong className="text-teal-600">Q{idx + 1}:</strong> {q}
                   </span>
                   <button
                     type="button"
                     onClick={() => removeQuestion(idx)}
-                    className="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"
+                    className="text-zinc-400 hover:text-rose-600 p-1 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -485,12 +485,12 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
                     addQuestion();
                   }
                 }}
-                className="flex-1 rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2 text-xs text-slate-900"
+                className="flex-1 rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2 text-xs text-zinc-900"
               />
               <button
                 type="button"
                 onClick={addQuestion}
-                className="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs font-bold flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Question
@@ -499,22 +499,22 @@ export default function CreateRequisitionModal({ isOpen, onClose, onCreate }) {
           </div>
 
           {/* Modal Footer */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-            <span className="text-xs text-slate-500">
+          <div className="flex items-center justify-between pt-4 border-t border-zinc-200">
+            <span className="text-xs text-zinc-500">
               Job will immediately appear on the Public Candidate Careers Website.
             </span>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 {submitting ? 'Publishing Job...' : 'Publish Job Requisition'}

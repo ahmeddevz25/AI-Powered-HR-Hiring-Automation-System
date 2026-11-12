@@ -218,29 +218,29 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      {/* Clean SaaS Navbar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div className="min-h-screen bg-[#F3F5F8] text-zinc-900 flex flex-col">
+      {/* Executive SaaS Glass Navbar */}
+      <header className="bg-[#0B121E] text-white border-b border-zinc-800 sticky top-0 z-30 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          <div onClick={() => setPublicTab('jobs')} className="flex items-center gap-2.5 cursor-pointer">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm">
+          <div onClick={() => setPublicTab('jobs')} className="flex items-center gap-3 cursor-pointer">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-zinc-950 shadow-md shadow-teal-500/20">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-lg font-bold text-slate-900 tracking-tight">TalentSense</span>
-              <span className="ml-2 text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
-                Careers
+              <span className="text-lg font-extrabold text-white tracking-tight">TalentSense</span>
+              <span className="ml-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-teal-500/15 text-teal-300 border border-teal-500/30">
+                Careers Cloud
               </span>
             </div>
           </div>
 
-          <nav className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+          <nav className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-xl">
             <button
               onClick={() => setPublicTab('jobs')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 publicTab === 'jobs'
-                  ? 'bg-white text-slate-900 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-xs'
+                  : 'text-zinc-400 hover:text-white'
               }`}
             >
               Open Positions ({jobs.length})
@@ -254,14 +254,14 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
               }}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
                 publicTab === 'tracker'
-                  ? 'bg-white text-slate-900 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-xs'
+                  : 'text-zinc-400 hover:text-white'
               }`}
             >
-              <User className="w-3.5 h-3.5 text-blue-600" />
+              <User className="w-3.5 h-3.5 text-teal-300" />
               {candidateUser ? 'Candidate Portal' : 'Track My Application'}
               {myApplications.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 text-blue-700 font-bold">
+                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-black/30 text-teal-200 font-bold">
                   {myApplications.length}
                 </span>
               )}
@@ -277,24 +277,24 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                     setPublicTab('tracker');
                     handleLookupApplications(candidateUser.email);
                   }}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 cursor-pointer transition"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 cursor-pointer transition"
                   title="Click to view Candidate Portal"
                 >
-                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-teal-500 text-zinc-950 text-[11px] font-extrabold flex items-center justify-center">
                     {candidateUser.name ? candidateUser.name.slice(0, 1).toUpperCase() : 'C'}
                   </div>
                   <div className="text-left hidden sm:block">
-                    <div className="text-xs font-bold text-slate-800 leading-tight">
+                    <div className="text-xs font-bold text-white leading-tight">
                       {candidateUser.name}
                     </div>
-                    <div className="text-[10px] text-blue-600 font-medium">Candidate</div>
+                    <div className="text-[10px] text-teal-400 font-semibold">Candidate</div>
                   </div>
                 </div>
 
                 <button
                   onClick={handleCandidateLogout}
                   title="Sign out of Candidate Portal"
-                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition cursor-pointer"
+                  className="p-2 rounded-xl text-zinc-400 hover:text-rose-400 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -302,9 +302,9 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
             ) : (
               <button
                 onClick={() => setShowCandidateLoginModal(true)}
-                className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-300 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
               >
-                <User className="w-3.5 h-3.5 text-blue-600" />
+                <User className="w-3.5 h-3.5 text-teal-400" />
                 Candidate Sign In
               </button>
             )}
@@ -313,18 +313,18 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
             {loggedInUser ? (
               <button
                 onClick={onNavigateAdmin}
-                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
               >
-                Recruiter Dashboard
+                Recruiter Workspace
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button
                 onClick={onNavigateLogin}
-                className="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
               >
-                <Lock className="w-3.5 h-3.5 text-slate-500" />
-                <span className="hidden sm:inline">Recruiter Login</span>
+                <Lock className="w-3.5 h-3.5 text-teal-400" />
+                <span className="hidden sm:inline">Staff Portal</span>
               </button>
             )}
           </div>
@@ -334,28 +334,32 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
       {/* TAB 1: PUBLIC CAREERS BOARD */}
       {publicTab === 'jobs' && (
         <div className="flex-1">
-          {/* Clean Modern Hero Banner */}
-          <section className="bg-white border-b border-slate-200 py-12 px-4">
-            <div className="max-w-4xl mx-auto text-center space-y-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold">
-                We're Hiring Across Engineering & AI
+          {/* Executive Dark Obsidian & Teal SaaS Hero Banner */}
+          <section className="relative bg-gradient-to-b from-[#0B121E] via-[#0F192A] to-[#132235] text-white border-b border-zinc-800 py-14 px-4 overflow-hidden">
+            <div className="max-w-4xl mx-auto text-center space-y-5 relative z-10">
+              <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/15 border border-teal-400/30 text-teal-300 text-xs font-bold tracking-wide">
+                <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                AI-Assisted · 100% Human-Reviewed Hiring Pipeline
               </span>
-              <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-                Find your next role at <span className="text-blue-600">TalentSense</span>
+              <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Build the Future at{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-emerald-400">
+                  TalentSense
+                </span>
               </h1>
-              <p className="text-base text-slate-600 max-w-2xl mx-auto">
-                Browse open roles posted by our hiring team, upload your resume in seconds, and track every stage of your application online.
+              <p className="text-sm sm:text-base text-zinc-300 max-w-2xl mx-auto leading-relaxed">
+                Explore open engineering and AI positions, submit your resume in seconds, and track your real-time screening and interview stages in your Candidate Portal.
               </p>
 
               <div className="max-w-xl mx-auto pt-2">
                 <div className="relative flex items-center">
-                  <Search className="w-5 h-5 text-slate-400 absolute left-4" />
+                  <Search className="w-5 h-5 text-teal-400 absolute left-4" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by job title, team, or skill (Python, React, FastAPI)..."
-                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-300 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-3 focus:ring-blue-100 transition"
+                    placeholder="Search by job title, department, or skill (Python, React, FastAPI)..."
+                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white/95 border border-white/20 text-sm text-zinc-900 placeholder-zinc-400 shadow-xl focus:bg-white focus:outline-none focus:ring-3 focus:ring-teal-400/40 transition font-medium"
                   />
                 </div>
               </div>
@@ -368,12 +372,12 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
               {/* Left List of Jobs */}
               <div className="lg:col-span-5 space-y-3">
                 <div className="flex items-center justify-between px-1">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Available Roles ({loadingJobs ? '...' : filteredJobs.length})
+                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-zinc-500">
+                    Open Requisitions ({loadingJobs ? '...' : filteredJobs.length})
                   </h2>
                   <button
                     onClick={loadJobs}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                    className="text-xs font-bold text-teal-700 hover:text-teal-800 underline cursor-pointer"
                   >
                     Refresh
                   </button>
@@ -394,20 +398,20 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                 {loadingJobs && (
                   <div className="space-y-3 animate-pulse">
                     {[1, 2, 3].map((n) => (
-                      <div key={n} className="p-5 rounded-2xl border border-slate-200 bg-white space-y-3">
-                        <div className="h-4 bg-slate-200 rounded w-1/3"></div>
-                        <div className="h-5 bg-slate-200 rounded w-3/4"></div>
-                        <div className="h-3 bg-slate-100 rounded w-1/2"></div>
+                      <div key={n} className="p-5 rounded-2xl border border-zinc-200 bg-white space-y-3">
+                        <div className="h-4 bg-zinc-200 rounded w-1/3"></div>
+                        <div className="h-5 bg-zinc-200 rounded w-3/4"></div>
+                        <div className="h-3 bg-zinc-100 rounded w-1/2"></div>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {!loadingJobs && !jobLoadError && filteredJobs.length === 0 && (
-                  <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center space-y-3 shadow-2xs">
-                    <Briefcase className="w-8 h-8 text-slate-300 mx-auto" />
-                    <p className="text-sm font-semibold text-slate-700">No open positions found</p>
-                    <p className="text-xs text-slate-500">
+                  <div className="bg-white border border-zinc-200 rounded-2xl p-8 text-center space-y-3 shadow-2xs">
+                    <Briefcase className="w-8 h-8 text-zinc-300 mx-auto" />
+                    <p className="text-sm font-bold text-zinc-700">No open positions found</p>
+                    <p className="text-xs text-zinc-500">
                       Try clearing your search query or check back later.
                     </p>
                     <button
@@ -415,7 +419,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                         setSearchQuery('');
                         loadJobs();
                       }}
-                      className="text-xs text-blue-600 font-bold underline cursor-pointer"
+                      className="text-xs text-teal-700 font-bold underline cursor-pointer"
                     >
                       Clear search & reload jobs
                     </button>
@@ -428,29 +432,33 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                     <div
                       key={job.requisition_id}
                       onClick={() => setSelectedJob(job)}
-                      className={`p-5 rounded-2xl border transition cursor-pointer ${
+                      className={`p-5 rounded-2xl border transition-all cursor-pointer ${
                         active
-                          ? 'bg-white border-blue-600 ring-2 ring-blue-600/10 shadow-md'
-                          : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
+                          ? 'bg-white border-teal-600 border-l-4 border-l-teal-600 ring-2 ring-teal-600/10 shadow-md'
+                          : 'bg-white border-zinc-200/90 hover:border-teal-400 shadow-2xs'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <span className="text-xs font-semibold text-blue-600">{job.department}</span>
-                          <h3 className="text-base font-bold text-slate-900 mt-0.5">{job.title}</h3>
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700">
+                            {job.department}
+                          </span>
+                          <h3 className="text-base font-extrabold text-zinc-900 mt-0.5 tracking-tight">
+                            {job.title}
+                          </h3>
                         </div>
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Active
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Hiring
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 mt-3">
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-500 font-medium mt-3">
                         <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                          <MapPin className="w-3.5 h-3.5 text-teal-600" />
                           {job.location_work_arrangement}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          <Clock className="w-3.5 h-3.5 text-teal-600" />
                           {job.min_experience_years}+ yrs experience
                         </span>
                       </div>
@@ -459,7 +467,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                         {(job.required_skills || []).map((skill) => (
                           <span
                             key={skill}
-                            className="text-xs px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium"
+                            className="text-[11px] px-2.5 py-0.5 rounded-md bg-zinc-100 text-zinc-700 font-semibold"
                           >
                             {skill}
                           </span>
@@ -473,26 +481,28 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
               {/* Right Job Details Card */}
               <div className="lg:col-span-7">
                 {!selectedJob && !loadingJobs && (
-                  <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-sm">
+                  <div className="bg-white border border-zinc-200 rounded-2xl p-12 text-center text-zinc-400 text-sm">
                     Select an open role on the left to review requirements and apply.
                   </div>
                 )}
                 {selectedJob && (
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm sticky top-24">
-                    <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-6">
+                  <div className="bg-white border border-zinc-200/90 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm sticky top-24">
+                    <div className="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-100 pb-6">
                       <div>
-                        <div className="text-xs font-semibold text-blue-600 flex items-center gap-1.5">
-                          <Building2 className="w-4 h-4" />
+                        <div className="text-xs font-bold uppercase tracking-wider text-teal-700 flex items-center gap-1.5">
+                          <Building2 className="w-4 h-4 text-teal-600" />
                           {selectedJob.department}
                         </div>
-                        <h2 className="text-2xl font-bold text-slate-900 mt-1">{selectedJob.title}</h2>
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mt-2">
+                        <h2 className="text-2xl font-extrabold text-zinc-900 mt-1 tracking-tight">
+                          {selectedJob.title}
+                        </h2>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-500 font-medium mt-2">
                           <span className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4 text-slate-400" />
+                            <MapPin className="w-4 h-4 text-teal-600" />
                             {selectedJob.location_work_arrangement}
                           </span>
                           <span className="flex items-center gap-1.5">
-                            <Briefcase className="w-4 h-4 text-slate-400" />
+                            <Briefcase className="w-4 h-4 text-teal-600" />
                             {selectedJob.min_experience_years}+ Years Experience
                           </span>
                         </div>
@@ -500,30 +510,32 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
 
                       <button
                         onClick={() => setApplyModalJob(selectedJob)}
-                        className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold flex items-center gap-2 shadow-sm transition cursor-pointer"
+                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-sm font-bold flex items-center gap-2 shadow-md shadow-teal-900/15 transition cursor-pointer"
                       >
                         <Upload className="w-4 h-4" />
-                        Apply Now
+                        Apply for this Role
                       </button>
                     </div>
 
                     <div className="space-y-2">
-                      <h3 className="text-sm font-bold text-slate-900">About the Role</h3>
-                      <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                      <h3 className="text-sm font-extrabold text-zinc-900 uppercase tracking-wider">
+                        Role Overview & Responsibilities
+                      </h3>
+                      <p className="text-sm text-zinc-600 leading-relaxed whitespace-pre-line">
                         {selectedJob.job_description}
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
-                          Required Skills
+                      <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/80">
+                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-500 mb-2.5">
+                          Required Core Skills
                         </h4>
                         <div className="flex flex-wrap gap-1.5">
                           {(selectedJob.required_skills || []).map((sk) => (
                             <span
                               key={sk}
-                              className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-800 text-xs font-semibold shadow-2xs"
+                              className="px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-teal-900 text-xs font-bold shadow-2xs"
                             >
                               {sk}
                             </span>
@@ -531,15 +543,15 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                         </div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+                      <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200/80">
+                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-500 mb-2.5">
                           Bonus / Preferred Skills
                         </h4>
                         <div className="flex flex-wrap gap-1.5">
                           {(selectedJob.preferred_skills || []).map((sk) => (
                             <span
                               key={sk}
-                              className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-xs font-medium"
+                              className="px-2.5 py-1 rounded-lg bg-white border border-zinc-200 text-zinc-600 text-xs font-semibold"
                             >
                               {sk}
                             </span>
@@ -548,10 +560,10 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100 flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                      <div className="text-xs text-slate-600 leading-relaxed">
-                        <strong className="text-slate-900">What happens after you apply?</strong> Our recruiting team reviews every application. If shortlisted, you'll receive an invite in your Candidate Portal for a quick 5-minute preliminary screening and interview scheduling.
+                    <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200/70 flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
+                      <div className="text-xs text-zinc-700 leading-relaxed">
+                        <strong className="text-zinc-900">Transparent Human-in-the-Loop Process:</strong> Every resume is evaluated against job-related criteria and reviewed by a human recruiter. Shortlisted candidates receive a live Voice AI screening invitation and timezone-aligned interview slots.
                       </div>
                     </div>
                   </div>
@@ -567,21 +579,21 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
         <section className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 space-y-6 flex-1">
           {/* Candidate Profile Header OR Sign-In Banner */}
           {candidateUser ? (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white font-bold text-lg flex items-center justify-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white font-bold text-lg flex items-center justify-center shadow-xs">
                   {candidateUser.name ? candidateUser.name.slice(0, 1).toUpperCase() : 'C'}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-slate-900">
+                    <h2 className="text-xl font-bold text-zinc-900">
                       Welcome, {candidateUser.name}!
                     </h2>
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                       Candidate Portal
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-zinc-500 mt-0.5">
                     Logged in as <strong>{candidateUser.email}</strong> · Real-time Application Status & Interactive Stages
                   </p>
                 </div>
@@ -592,7 +604,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                   type="button"
                   onClick={() => handleLookupApplications(candidateUser.email)}
                   disabled={loadingPortal}
-                  className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
                   title="Refresh latest updates from recruiting team"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${loadingPortal ? 'animate-spin' : ''}`} />
@@ -601,7 +613,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                 <button
                   type="button"
                   onClick={handleCandidateLogout}
-                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-600 hover:text-rose-600 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-rose-50 border border-zinc-200 hover:border-rose-200 text-zinc-600 hover:text-rose-600 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   Sign Out
@@ -609,10 +621,10 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
               </div>
             </div>
           ) : (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-xs">
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 space-y-4 shadow-xs">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Candidate Sign In & Application Tracker</h2>
-                <p className="text-sm text-slate-500 mt-0.5">
+                <h2 className="text-xl font-bold text-zinc-900">Candidate Sign In & Application Tracker</h2>
+                <p className="text-sm text-zinc-500 mt-0.5">
                   Sign in with your email address to check your real-time status, launch your AI voice screening, or join scheduled technical interviews.
                 </p>
               </div>
@@ -623,12 +635,12 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                   value={lookupEmail}
                   onChange={(e) => setLookupEmail(e.target.value)}
                   placeholder="Enter your email address (e.g. ahmednadeemryk20@gmail.com)..."
-                  className="flex-1 rounded-xl bg-slate-50 border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="flex-1 rounded-xl bg-zinc-50 border border-zinc-300 px-4 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
                 <button
                   onClick={() => handleCandidateLogin(lookupEmail)}
                   disabled={loadingPortal}
-                  className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-xs cursor-pointer flex items-center justify-center gap-2"
+                  className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold shadow-xs cursor-pointer flex items-center justify-center gap-2"
                 >
                   <User className="w-4 h-4" />
                   {loadingPortal ? 'Signing In...' : 'Sign In as Candidate'}
@@ -636,12 +648,12 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
               </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="text-xs text-slate-400">Quick Candidate Logins:</span>
+                <span className="text-xs text-zinc-400">Quick Candidate Logins:</span>
                 {SAMPLE_APPLICANTS.map((app) => (
                   <button
                     key={app.email}
                     onClick={() => handleCandidateLogin(app.email, app.name)}
-                    className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-transparent hover:border-blue-200 text-slate-700 font-medium transition cursor-pointer"
+                    className="text-xs px-2.5 py-1 rounded-lg bg-zinc-100 hover:bg-teal-50 hover:text-teal-700 border border-transparent hover:border-teal-200 text-zinc-700 font-medium transition cursor-pointer"
                   >
                     👤 {app.name}
                   </button>
@@ -664,15 +676,15 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
 
           <div className="space-y-5">
             {myApplications.length === 0 && !loadingPortal && !portalMessage && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-3">
-                <Briefcase className="w-10 h-10 text-slate-300 mx-auto" />
-                <h3 className="text-base font-bold text-slate-800">No applications found</h3>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              <div className="bg-white border border-zinc-200 rounded-2xl p-12 text-center space-y-3">
+                <Briefcase className="w-10 h-10 text-zinc-300 mx-auto" />
+                <h3 className="text-base font-bold text-zinc-800">No applications found</h3>
+                <p className="text-xs text-zinc-500 max-w-sm mx-auto">
                   You haven't submitted any job applications under this email yet. Browse our open positions and submit your resume!
                 </p>
                 <button
                   onClick={() => setPublicTab('jobs')}
-                  className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 cursor-pointer"
+                  className="px-4 py-2 bg-teal-600 text-white text-xs font-bold rounded-xl hover:bg-teal-700 cursor-pointer"
                 >
                   Browse Open Positions →
                 </button>
@@ -682,15 +694,15 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
             {myApplications.map((app) => (
               <div
                 key={app.candidate_id}
-                className="bg-white border border-slate-200 rounded-2xl p-6 space-y-5 shadow-xs"
+                className="bg-white border border-zinc-200 rounded-2xl p-6 space-y-5 shadow-xs"
               >
                 {/* Application Header */}
-                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-4">
+                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-100 pb-4">
                   <div>
-                    <span className="text-xs font-semibold text-blue-600">{app.department}</span>
-                    <h3 className="text-lg font-bold text-slate-900 mt-0.5">{app.job_title}</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Applicant: <strong className="text-slate-800">{app.name}</strong> ({app.email}) · Timezone: {app.timezone}
+                    <span className="text-xs font-semibold text-teal-600">{app.department}</span>
+                    <h3 className="text-lg font-bold text-zinc-900 mt-0.5">{app.job_title}</h3>
+                    <p className="text-xs text-zinc-500 mt-1">
+                      Applicant: <strong className="text-zinc-800">{app.name}</strong> ({app.email}) · Timezone: {app.timezone}
                       {app.applied_at && ` · Applied: ${new Date(app.applied_at).toLocaleDateString()}`}
                     </p>
                   </div>
@@ -698,8 +710,8 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                 </div>
 
                 {/* 4-Stage Candidate Visual Stepper */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-3">
+                  <div className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                     Application Hiring Pipeline
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
@@ -718,17 +730,17 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                     <div className={`p-3 rounded-xl border ${
                       ['Approved for Screening', 'Screening Scheduled / Pending', 'Screening Completed — HR Review', 'Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status)
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                        : 'bg-white border-slate-200 text-slate-600'
+                        : 'bg-white border-zinc-200 text-zinc-600'
                     }`}>
                       <div className="flex items-center gap-1.5 font-bold">
                         {['Approved for Screening', 'Screening Scheduled / Pending', 'Screening Completed — HR Review', 'Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status) ? (
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                         ) : (
-                          <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                          <Clock className="w-4 h-4 text-zinc-400 shrink-0" />
                         )}
                         2. Recruiter Shortlist
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-1">
+                      <div className="text-[11px] text-zinc-500 mt-1">
                         {['Approved for Screening', 'Screening Scheduled / Pending', 'Screening Completed — HR Review', 'Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status)
                           ? 'Gate #1 Approved by HR'
                           : 'In HR review queue'}
@@ -740,16 +752,16 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                       app.screening_completed || ['Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status)
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                         : app.can_take_screening
-                        ? 'bg-blue-50 border-blue-400 text-blue-900 ring-2 ring-blue-500/20'
-                        : 'bg-white border-slate-200 text-slate-600'
+                        ? 'bg-teal-50 border-teal-400 text-teal-900 ring-2 ring-teal-500/20'
+                        : 'bg-white border-zinc-200 text-zinc-600'
                     }`}>
                       <div className="flex items-center gap-1.5 font-bold">
                         {app.screening_completed || ['Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(app.current_status) ? (
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                         ) : app.can_take_screening ? (
-                          <PhoneCall className="w-4 h-4 text-blue-600 animate-pulse shrink-0" />
+                          <PhoneCall className="w-4 h-4 text-teal-600 animate-pulse shrink-0" />
                         ) : (
-                          <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                          <Clock className="w-4 h-4 text-zinc-400 shrink-0" />
                         )}
                         3. Voice AI Screening
                       </div>
@@ -766,13 +778,13 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                     <div className={`p-3 rounded-xl border ${
                       app.interview_scheduled
                         ? 'bg-emerald-50 border-emerald-400 text-emerald-900 ring-2 ring-emerald-500/20'
-                        : 'bg-white border-slate-200 text-slate-600'
+                        : 'bg-white border-zinc-200 text-zinc-600'
                     }`}>
                       <div className="flex items-center gap-1.5 font-bold">
                         {app.interview_scheduled ? (
                           <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
                         ) : (
-                          <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                          <Clock className="w-4 h-4 text-zinc-400 shrink-0" />
                         )}
                         4. Team Lead Interview
                       </div>
@@ -787,17 +799,17 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
 
                 {/* Screening Call Action Card when Shortlisted */}
                 {app.can_take_screening && (
-                  <div className="p-5 rounded-2xl bg-blue-50/80 border-2 border-blue-300 space-y-4 shadow-xs">
+                  <div className="p-5 rounded-2xl bg-teal-50/80 border-2 border-teal-300 space-y-4 shadow-xs">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <div>
-                        <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-blue-600 text-white">
+                        <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-teal-600 text-white">
                           Action Required
                         </span>
-                        <h4 className="text-base font-bold text-slate-900 mt-2 flex items-center gap-2">
-                          <PhoneCall className="w-5 h-5 text-blue-600" />
+                        <h4 className="text-base font-bold text-zinc-900 mt-2 flex items-center gap-2">
+                          <PhoneCall className="w-5 h-5 text-teal-600" />
                           Interactive AI Voice Screening Call Ready
                         </h4>
-                        <p className="text-xs text-slate-600 mt-1 max-w-xl leading-relaxed">
+                        <p className="text-xs text-zinc-600 mt-1 max-w-xl leading-relaxed">
                           Congratulations! You've been shortlisted. Our AI Recruitment Assistant will ask you 3–4 role-related questions aloud. Speak your answers naturally via your microphone (~5 minutes).
                         </p>
                       </div>
@@ -806,7 +818,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                         href={`/screening-call?candidate_id=${app.candidate_id}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition"
+                        className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition"
                       >
                         <PhoneCall className="w-4 h-4" />
                         Launch AI Voice Screening Room →
@@ -814,14 +826,14 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                     </div>
 
                     {/* Fallback Text Q&A Form */}
-                    <details className="pt-2 text-xs text-slate-700">
-                      <summary className="font-semibold text-blue-600 cursor-pointer hover:underline mb-2">
+                    <details className="pt-2 text-xs text-zinc-700">
+                      <summary className="font-semibold text-teal-600 cursor-pointer hover:underline mb-2">
                         Alternative: Submit Written Answers (if you do not have a microphone)
                       </summary>
                       <div className="space-y-3 pt-2">
                         {(app.screening_questions || []).map((q, idx) => (
                           <div key={idx}>
-                            <label className="block text-xs font-semibold text-slate-800 mb-1">
+                            <label className="block text-xs font-semibold text-zinc-800 mb-1">
                               {idx + 1}. {q}
                             </label>
                             <input
@@ -831,20 +843,20 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                               onChange={(e) =>
                                 setScreeningAnswers({ ...screeningAnswers, [idx]: e.target.value })
                               }
-                              className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-sm text-slate-900"
+                              className="w-full rounded-xl bg-white border border-zinc-300 px-3.5 py-2 text-sm text-zinc-900"
                             />
                           </div>
                         ))}
 
                         <div>
-                          <label className="block text-xs font-semibold text-slate-800 mb-1">
+                          <label className="block text-xs font-semibold text-zinc-800 mb-1">
                             Your Availability for an Interview & Notice Period
                           </label>
                           <input
                             type="text"
                             value={screeningAvail}
                             onChange={(e) => setScreeningAvail(e.target.value)}
-                            className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-sm text-slate-900"
+                            className="w-full rounded-xl bg-white border border-zinc-300 px-3.5 py-2 text-sm text-zinc-900"
                           />
                         </div>
 
@@ -852,14 +864,14 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                           <button
                             disabled={loadingPortal}
                             onClick={() => handleCandidateScreeningAction(app.candidate_id, 'custom_interactive')}
-                            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs cursor-pointer"
+                            className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold shadow-xs cursor-pointer"
                           >
                             Submit Written Answers
                           </button>
                           <button
                             disabled={loadingPortal}
                             onClick={() => handleCandidateScreeningAction(app.candidate_id, 'request_human')}
-                            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-medium cursor-pointer"
+                            className="px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-700 text-xs font-medium cursor-pointer"
                           >
                             Request Human Recruiter Contact
                           </button>
@@ -889,17 +901,17 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                       <div className="p-3.5 rounded-xl bg-white border border-emerald-200 space-y-1">
-                        <span className="text-slate-500 font-medium">Scheduled Time (Your Timezone: {app.timezone}):</span>
-                        <div className="font-bold text-slate-900 text-sm">
+                        <span className="text-zinc-500 font-medium">Scheduled Time (Your Timezone: {app.timezone}):</span>
+                        <div className="font-bold text-zinc-900 text-sm">
                           {app.interview_details.confirmed_slot?.candidate_local_time || 'Confirmed by HR'}
                         </div>
                       </div>
                       <div className="p-3.5 rounded-xl bg-white border border-emerald-200 space-y-1">
-                        <span className="text-slate-500 font-medium">Interviewer & Department Lead:</span>
-                        <div className="font-bold text-slate-900 text-sm">
+                        <span className="text-zinc-500 font-medium">Interviewer & Department Lead:</span>
+                        <div className="font-bold text-zinc-900 text-sm">
                           {app.interview_details.interviewer_name}
                         </div>
-                        <div className="text-blue-600 text-[11px] truncate">
+                        <div className="text-teal-600 text-[11px] truncate">
                           Room: {app.interview_details.meeting_link || `/interview-room?candidate_id=${app.candidate_id}`}
                         </div>
                       </div>
@@ -914,21 +926,21 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
 
       {/* Apply Modal */}
       {applyModalJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
-            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white border border-zinc-200 rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-start justify-between border-b border-zinc-100 pb-3">
               <div>
-                <span className="text-xs font-semibold text-blue-600">Apply for Position</span>
-                <h3 className="text-lg font-bold text-slate-900 mt-0.5">{applyModalJob.title}</h3>
+                <span className="text-xs font-semibold text-teal-600">Apply for Position</span>
+                <h3 className="text-lg font-bold text-zinc-900 mt-0.5">{applyModalJob.title}</h3>
               </div>
-              <button onClick={() => setApplyModalJob(null)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+              <button onClick={() => setApplyModalJob(null)} className="text-zinc-400 hover:text-zinc-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* 1-Click Test Helper so User can test applying immediately without searching for a file */}
-            <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200 space-y-2">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-blue-800">
+            <div className="p-3 rounded-xl bg-teal-50/70 border border-teal-200 space-y-2">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-teal-800">
                 Quick Test Fill (Auto-Fills Form + Attaches Sample Resume)
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -945,7 +957,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                     setCandTz('Asia/Karachi');
                     setResumeFile(file);
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold transition cursor-pointer"
                 >
                   + Strong Match Candidate (Usman Ali)
                 </button>
@@ -961,7 +973,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                     setCandTz('Asia/Dubai');
                     setResumeFile(file);
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 border border-blue-300 text-blue-700 text-xs font-semibold transition cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-white hover:bg-zinc-50 border border-teal-300 text-teal-700 text-xs font-semibold transition cursor-pointer"
                 >
                   + Partial Match (Sara Tariq)
                 </button>
@@ -982,47 +994,47 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
 
             <form onSubmit={handleApplySubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name *</label>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   value={candName}
                   onChange={(e) => setCandName(e.target.value)}
                   placeholder="Enter your full name"
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address *</label>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Email Address *</label>
                   <input
                     type="email"
                     required
                     value={candEmail}
                     onChange={(e) => setCandEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                    className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Phone Number *</label>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">Phone Number *</label>
                   <input
                     type="text"
                     required
                     value={candPhone}
                     onChange={(e) => setCandPhone(e.target.value)}
-                    className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                    className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Time Zone</label>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Time Zone</label>
                 <select
                   value={candTz}
                   onChange={(e) => setCandTz(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2 text-sm text-slate-900"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2 text-sm text-zinc-900"
                 >
                   <option value="Asia/Karachi">Asia/Karachi (PKT UTC+05:00)</option>
                   <option value="Asia/Dubai">Asia/Dubai (GST UTC+04:00)</option>
@@ -1033,7 +1045,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">
                   Resume / CV (PDF, DOCX, or TXT) *
                 </label>
                 <input
@@ -1041,7 +1053,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                   required={!resumeFile}
                   accept=".pdf,.docx,.txt"
                   onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3 py-2 text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white file:font-semibold"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3 py-2 text-xs text-zinc-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-teal-600 file:text-white file:font-semibold"
                 />
                 {resumeFile && (
                   <div className="mt-1.5 text-xs text-emerald-700 font-semibold flex items-center gap-1.5">
@@ -1055,14 +1067,14 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                 <button
                   type="button"
                   onClick={() => setApplyModalJob(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={applying || !resumeFile}
-                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-semibold shadow-sm cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold shadow-sm cursor-pointer"
                 >
                   {applying ? 'Submitting...' : 'Submit Application'}
                 </button>
@@ -1074,21 +1086,21 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
 
       {/* Candidate Sign In Modal */}
       {showCandidateLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white border border-zinc-200 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-start justify-between border-b border-zinc-100 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
                   <User className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">Candidate Sign In</h3>
-                  <p className="text-[11px] text-slate-500">Track your application, screening & interviews</p>
+                  <h3 className="text-base font-bold text-zinc-900">Candidate Sign In</h3>
+                  <p className="text-[11px] text-zinc-500">Track your application, screening & interviews</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowCandidateLoginModal(false)}
-                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="text-zinc-400 hover:text-zinc-700 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1102,7 +1114,7 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
               className="space-y-4"
             >
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">
                   Candidate Email Address
                 </label>
                 <input
@@ -1111,21 +1123,21 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                   value={modalLoginEmail}
                   onChange={(e) => setModalLoginEmail(e.target.value)}
                   placeholder="e.g. ahmednadeemryk20@gmail.com"
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loadingPortal}
-                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-xs transition cursor-pointer"
               >
                 {loadingPortal ? 'Signing in...' : 'Sign In to Candidate Portal →'}
               </button>
             </form>
 
-            <div className="pt-2 border-t border-slate-100 space-y-2">
-              <div className="text-[11px] font-semibold text-slate-500">
+            <div className="pt-2 border-t border-zinc-100 space-y-2">
+              <div className="text-[11px] font-semibold text-zinc-500">
                 Or Sign In as a Verified Applicant:
               </div>
               <div className="space-y-1.5">
@@ -1137,13 +1149,13 @@ export default function PublicCareersSite({ onNavigateLogin, loggedInUser, onNav
                       setModalLoginEmail(app.email);
                       handleCandidateLogin(app.email, app.name);
                     }}
-                    className="w-full text-left px-3 py-2 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex items-center justify-between cursor-pointer"
+                    className="w-full text-left px-3 py-2 rounded-xl bg-zinc-50 hover:bg-teal-50 border border-zinc-200 hover:border-teal-300 transition flex items-center justify-between cursor-pointer"
                   >
                     <div>
-                      <div className="text-xs font-bold text-slate-800">{app.name}</div>
-                      <div className="text-[10px] text-slate-500">{app.email}</div>
+                      <div className="text-xs font-bold text-zinc-800">{app.name}</div>
+                      <div className="text-[10px] text-zinc-500">{app.email}</div>
                     </div>
-                    <span className="text-[10px] font-bold text-blue-600 bg-white px-2 py-0.5 rounded-md border border-blue-200">
+                    <span className="text-[10px] font-bold text-teal-600 bg-white px-2 py-0.5 rounded-md border border-teal-200">
                       Sign In →
                     </span>
                   </button>

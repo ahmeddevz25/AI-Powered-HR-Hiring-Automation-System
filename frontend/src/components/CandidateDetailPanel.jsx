@@ -95,7 +95,7 @@ export default function CandidateDetailPanel({
 
   if (!candidate) {
     return (
-      <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-sm">
+      <div className="bg-white border border-zinc-200 rounded-2xl p-12 text-center text-zinc-400 text-sm">
         Select a candidate from the queue to inspect Agent 1, Agent 2, and Agent 3 workflow stages.
       </div>
     );
@@ -123,38 +123,38 @@ export default function CandidateDetailPanel({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-      {/* Candidate Header */}
-      <div className="p-6 border-b border-slate-100 flex flex-wrap items-start justify-between gap-4">
+    <div className="bg-white border border-zinc-200/90 rounded-2xl shadow-xs overflow-hidden">
+      {/* Executive Candidate Header */}
+      <div className="p-6 bg-gradient-to-r from-[#0B121E] to-[#132235] text-white border-b border-zinc-800 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h2 className="text-xl font-bold text-slate-900">{candidate.name}</h2>
+            <h2 className="text-xl font-extrabold text-white tracking-tight">{candidate.name}</h2>
             <StatusBadge status={candidate.current_status} />
             {evalData && (
-              <span className="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold">
+              <span className="font-mono px-2.5 py-1 rounded-lg bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold">
                 Score: {evalData.total_score}/100
               </span>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1.5">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-300 mt-2">
             {candidate.job_title && (
-              <span className="inline-flex items-center gap-1 font-semibold text-blue-600">
-                <Briefcase className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center gap-1.5 font-bold text-teal-300">
+                <Briefcase className="w-3.5 h-3.5 text-teal-400" />
                 {candidate.job_title}
               </span>
             )}
             <span>· {candidate.email}</span>
             <span>· {candidate.phone}</span>
             <span>
-              · Timezone: <strong className="text-slate-700">{candidate.timezone}</strong>
+              · Timezone: <strong className="text-white">{candidate.timezone}</strong>
             </span>
             <span>
-              · File: <code className="text-slate-700 font-semibold">{candidate.resume_filename}</code>
+              · File: <code className="text-teal-300 font-semibold">{candidate.resume_filename}</code>
             </span>
           </div>
           {candidate.status_reason && (
-            <p className="text-xs text-slate-600 mt-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-              <strong className="text-slate-800">Workflow Note:</strong> {candidate.status_reason}
+            <p className="text-xs text-zinc-200 mt-3 bg-white/5 px-3.5 py-2 rounded-xl border border-white/10">
+              <strong className="text-teal-300">Pipeline Note:</strong> {candidate.status_reason}
             </p>
           )}
         </div>
@@ -165,7 +165,7 @@ export default function CandidateDetailPanel({
               wrapAction(() => onDeleteCandidate(candidate.candidate_id), 'Candidate deleted.');
             }
           }}
-          className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-500 hover:text-rose-600 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer"
+          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-white/10 hover:border-rose-400/40 text-zinc-300 hover:text-rose-300 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />
           Delete Data
@@ -175,28 +175,28 @@ export default function CandidateDetailPanel({
       {/* Feedback Banner */}
       {feedback && (
         <div
-          className={`mx-6 mt-4 p-3.5 rounded-xl border text-xs font-semibold flex items-center justify-between ${
+          className={`mx-6 mt-4 p-3.5 rounded-xl border text-xs font-bold flex items-center justify-between ${
             feedback.type === 'error'
               ? 'bg-rose-50 border-rose-200 text-rose-700'
-              : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+              : 'bg-teal-50 border-teal-200 text-teal-900'
           }`}
         >
           <span>{feedback.text}</span>
-          <button onClick={() => setFeedback(null)} className="text-slate-400 hover:text-slate-700 ml-4">
+          <button onClick={() => setFeedback(null)} className="text-zinc-400 hover:text-zinc-700 ml-4 cursor-pointer">
             ✕
           </button>
         </div>
       )}
 
       {/* 4 Workflow Stage Tabs */}
-      <div className="flex border-b border-slate-200 bg-slate-50/70 px-6 gap-6 overflow-x-auto">
+      <div className="flex border-b border-zinc-200 bg-zinc-50/90 px-6 gap-2 py-2 overflow-x-auto">
         {[
-          { id: 'resume', label: '1. Agent 1: Resume Score & Gate #1', icon: Sparkles },
-          { id: 'screening', label: '2. Agent 2: Screening Call & Gate #2', icon: PhoneCall },
-          { id: 'interview', label: '3. Agent 3: Interview Slots & Gate #3', icon: Calendar },
+          { id: 'resume', label: '1. Agent 1: Score & Gate #1', icon: Sparkles },
+          { id: 'screening', label: '2. Agent 2: Voice Call & Gate #2', icon: PhoneCall },
+          { id: 'interview', label: '3. Agent 3: Slots & Gate #3', icon: Calendar },
           {
             id: 'history',
-            label: `4. Audit Log & Resume (${candidate.audit_events?.length || 0})`,
+            label: `4. Audit & Resume (${candidate.audit_events?.length || 0})`,
             icon: History,
           },
         ].map((tab) => {
@@ -206,13 +206,13 @@ export default function CandidateDetailPanel({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-3.5 text-xs font-bold border-b-2 transition whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                 active
-                  ? 'text-blue-600 border-blue-600'
-                  : 'text-slate-500 hover:text-slate-800 border-transparent'
+                  ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-xs'
+                  : 'text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-3.5 h-3.5" />
               {tab.label}
             </button>
           );
@@ -238,14 +238,14 @@ export default function CandidateDetailPanel({
                 </div>
 
                 <div className="p-4 rounded-xl bg-white border border-amber-200 space-y-3">
-                  <label className="block text-xs font-bold text-slate-700">
+                  <label className="block text-xs font-bold text-zinc-700">
                     Manual Exception Resolution (HR Recruiter Control)
                   </label>
                   <input
                     type="text"
                     value={manualReason}
                     onChange={(e) => setManualReason(e.target.value)}
-                    className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3 py-2 text-xs text-slate-900"
+                    className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3 py-2 text-xs text-zinc-900"
                   />
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -256,7 +256,7 @@ export default function CandidateDetailPanel({
                           'Candidate manually approved for Phone Screening.'
                         )
                       }
-                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold cursor-pointer"
                     >
                       Override & Approve for Screening
                     </button>
@@ -268,7 +268,7 @@ export default function CandidateDetailPanel({
                           'Candidate closed with recorded reason.'
                         )
                       }
-                      className="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-300 text-rose-600 text-xs font-semibold cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 border border-zinc-300 text-rose-600 text-xs font-semibold cursor-pointer"
                     >
                       Close Application
                     </button>
@@ -295,50 +295,50 @@ export default function CandidateDetailPanel({
                 )}
 
                 {/* Agent 1 Summary Card */}
-                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                      <span className="text-xs font-bold uppercase tracking-wider text-teal-600">
                         Agent 1 — Resume Scoring Recommendation
                       </span>
-                      <span className="text-[11px] px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-500">
+                      <span className="text-[11px] px-2 py-0.5 rounded-md bg-white border border-zinc-200 text-zinc-500">
                         Model: {evalData.model_version}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
+                    <p className="text-sm text-zinc-700 leading-relaxed">
                       {evalData.recommendation_for_human_review}
                     </p>
                   </div>
-                  <div className="text-center shrink-0 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-2xs">
-                    <div className="text-2xl font-extrabold text-blue-600">{evalData.total_score}/100</div>
-                    <div className="text-[11px] font-medium text-slate-500">Prioritization Score</div>
+                  <div className="text-center shrink-0 bg-white border border-zinc-200 rounded-2xl px-5 py-3 shadow-2xs">
+                    <div className="text-2xl font-extrabold text-teal-600">{evalData.total_score}/100</div>
+                    <div className="text-[11px] font-medium text-zinc-500">Prioritization Score</div>
                   </div>
                 </div>
 
                 {/* Criterion-Level Score Breakdown */}
                 <div className="space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                     Criterion-Level Breakdown & Cited Resume Evidence
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {Object.entries(evalData.criterion_scores || {}).map(([key, item]) => (
-                      <div key={key} className="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+                      <div key={key} className="p-4 rounded-xl bg-white border border-zinc-200 space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-800 capitalize">
+                          <span className="text-xs font-bold text-zinc-800 capitalize">
                             {key.replace(/_/g, ' ')}
                           </span>
-                          <span className="text-xs font-bold text-blue-600">
+                          <span className="text-xs font-bold text-teal-600">
                             {item.score} / {item.max_weight} pts
                           </span>
                         </div>
-                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
                           <div
-                            className="bg-blue-600 h-full rounded-full"
+                            className="bg-teal-600 h-full rounded-full"
                             style={{ width: `${Math.min(100, (item.score / Math.max(item.max_weight, 1)) * 100)}%` }}
                           />
                         </div>
-                        <p className="text-xs text-slate-600">{item.reasoning}</p>
-                        <p className="text-[11px] text-slate-500 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100 italic">
+                        <p className="text-xs text-zinc-600">{item.reasoning}</p>
+                        <p className="text-[11px] text-zinc-500 bg-zinc-50 px-2.5 py-1.5 rounded-lg border border-zinc-100 italic">
                           Evidence: "{item.evidence_quote}"
                         </p>
                       </div>
@@ -353,7 +353,7 @@ export default function CandidateDetailPanel({
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                       Supporting Resume Evidence
                     </h4>
-                    <ul className="space-y-1.5 text-xs text-slate-700">
+                    <ul className="space-y-1.5 text-xs text-zinc-700">
                       {(evalData.evidence || []).map((ev, i) => (
                         <li key={i}>• {ev}</li>
                       ))}
@@ -365,7 +365,7 @@ export default function CandidateDetailPanel({
                       <AlertTriangle className="w-4 h-4 text-amber-600" />
                       Missing or Unclear Items (Verify in Screening)
                     </h4>
-                    <ul className="space-y-1.5 text-xs text-slate-700">
+                    <ul className="space-y-1.5 text-xs text-zinc-700">
                       {(evalData.missing_or_unclear_items || []).map((gap, i) => (
                         <li key={i}>• {gap}</li>
                       ))}
@@ -374,18 +374,18 @@ export default function CandidateDetailPanel({
                 </div>
 
                 {/* HUMAN APPROVAL GATE #1 */}
-                <div className="p-5 rounded-2xl bg-blue-50/50 border-2 border-blue-200 space-y-3">
+                <div className="p-5 rounded-2xl bg-teal-50/50 border-2 border-teal-200 space-y-3">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <UserCheck className="w-4 h-4 text-blue-600" />
+                      <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                        <UserCheck className="w-4 h-4 text-teal-600" />
                         Human Approval Checkpoint #1 — Shortlist Decision
                       </h4>
-                      <p className="text-xs text-slate-600">
+                      <p className="text-xs text-zinc-600">
                         No candidate is contacted automatically based only on a score. Confirm shortlist progression below.
                       </p>
                     </div>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700">
                       Gate #1 Status: {evalData.hr_decision}
                     </span>
                   </div>
@@ -395,7 +395,7 @@ export default function CandidateDetailPanel({
                     value={decisionNote}
                     onChange={(e) => setDecisionNote(e.target.value)}
                     placeholder="Enter approval or override justification..."
-                    className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-xs text-slate-900"
+                    className="w-full rounded-xl bg-white border border-zinc-300 px-3.5 py-2 text-xs text-zinc-900"
                   />
 
                   <div className="flex flex-wrap gap-2.5 pt-1">
@@ -413,7 +413,7 @@ export default function CandidateDetailPanel({
                           'Shortlist Approved! Candidate unlocked for Agent 2 Screening Call.'
                         )
                       }
-                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       Approve for Screening Call
@@ -433,7 +433,7 @@ export default function CandidateDetailPanel({
                           'Recruiter Override Recorded: Candidate Approved for Screening Call!'
                         )
                       }
-                      className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-zinc-100 border border-zinc-300 text-zinc-700 text-xs font-bold cursor-pointer"
                     >
                       Override Score & Approve
                     </button>
@@ -452,7 +452,7 @@ export default function CandidateDetailPanel({
                           'Candidate application closed.'
                         )
                       }
-                      className="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-300 text-rose-600 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 border border-zinc-300 text-rose-600 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                     >
                       <XCircle className="w-4 h-4" />
                       Decline & Close
@@ -461,9 +461,9 @@ export default function CandidateDetailPanel({
 
                   {/* Screening Invite Status & Shareable Link */}
                   {['Approved for Screening', 'Screening Scheduled / Pending', 'Screening Completed — HR Review', 'Approved for Interview', 'Interview Proposed', 'Interview Scheduled'].includes(candidate.current_status) && (
-                    <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 flex items-center justify-between flex-wrap gap-2 text-xs">
-                      <div className="flex items-center gap-2 text-blue-900 font-medium">
-                        <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+                    <div className="p-3.5 rounded-xl bg-teal-50/70 border border-teal-200 flex items-center justify-between flex-wrap gap-2 text-xs">
+                      <div className="flex items-center gap-2 text-teal-900 font-medium">
+                        <Mail className="w-4 h-4 text-teal-600 shrink-0" />
                         <span>
                           Screening Invitation for <strong>{candidate.email}</strong>
                         </span>
@@ -485,7 +485,7 @@ export default function CandidateDetailPanel({
                                     `Screening invitation email resent to ${candidate.email} via Mailtrap!`
                                   )
                                 }
-                                className="px-2 py-1 rounded-lg bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 text-[11px] font-medium flex items-center gap-1 cursor-pointer"
+                                className="px-2 py-1 rounded-lg bg-white border border-zinc-300 text-zinc-600 hover:bg-zinc-100 text-[11px] font-medium flex items-center gap-1 cursor-pointer"
                                 title="Resend invite email"
                               >
                                 <Mail className="w-3 h-3" />
@@ -504,7 +504,7 @@ export default function CandidateDetailPanel({
                                   `Screening invitation email dispatched to ${candidate.email} via Mailtrap!`
                                 )
                               }
-                              className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
+                              className="px-2.5 py-1 rounded-lg bg-teal-600 text-white font-semibold hover:bg-teal-700 flex items-center gap-1 cursor-pointer"
                             >
                               <Mail className="w-3 h-3" />
                               Send Screening Invite (Mailtrap)
@@ -519,7 +519,7 @@ export default function CandidateDetailPanel({
                             setCopiedLink(true);
                             setTimeout(() => setCopiedLink(false), 2500);
                           }}
-                          className="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-teal-700 hover:bg-teal-50 font-semibold flex items-center gap-1 cursor-pointer"
                         >
                           {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                           {copiedLink ? 'Copied Link!' : 'Copy Link'}
@@ -528,7 +528,7 @@ export default function CandidateDetailPanel({
                           href={`/screening-call?candidate_id=${candidate.candidate_id}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-teal-700 hover:bg-teal-50 font-semibold flex items-center gap-1 cursor-pointer"
                         >
                           <ExternalLink className="w-3 h-3" />
                           Open Session
@@ -546,9 +546,9 @@ export default function CandidateDetailPanel({
         {activeTab === 'screening' && (
           <div className="space-y-6">
             {/* Screening Invite Quick Actions Banner */}
-            <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200 flex items-center justify-between flex-wrap gap-2 text-xs">
-              <div className="flex items-center gap-2 text-blue-900 font-medium">
-                <Mail className="w-4 h-4 text-blue-600 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-teal-50/80 border border-teal-200 flex items-center justify-between flex-wrap gap-2 text-xs">
+              <div className="flex items-center gap-2 text-teal-900 font-medium">
+                <Mail className="w-4 h-4 text-teal-600 shrink-0" />
                 <span>
                   Candidate Email: <strong>{candidate.email}</strong>
                 </span>
@@ -570,7 +570,7 @@ export default function CandidateDetailPanel({
                             `Screening invitation email resent to ${candidate.email} via Mailtrap!`
                           )
                         }
-                        className="px-2 py-1 rounded-lg bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 text-[11px] font-medium flex items-center gap-1 cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-zinc-300 text-zinc-600 hover:bg-zinc-100 text-[11px] font-medium flex items-center gap-1 cursor-pointer"
                         title="Resend invite email"
                       >
                         <Mail className="w-3 h-3" />
@@ -589,7 +589,7 @@ export default function CandidateDetailPanel({
                           `Screening invitation email dispatched to ${candidate.email} via Mailtrap!`
                         )
                       }
-                      className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-teal-600 text-white font-semibold hover:bg-teal-700 flex items-center gap-1 cursor-pointer"
                     >
                       <Mail className="w-3 h-3" />
                       Send Screening Invite (Mailtrap)
@@ -604,7 +604,7 @@ export default function CandidateDetailPanel({
                     setCopiedLink(true);
                     setTimeout(() => setCopiedLink(false), 2500);
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-1 cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-teal-700 hover:bg-teal-50 font-semibold flex items-center gap-1 cursor-pointer"
                 >
                   {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                   {copiedLink ? 'Copied Link!' : 'Copy Link'}
@@ -613,36 +613,36 @@ export default function CandidateDetailPanel({
                   href={`/screening-call?candidate_id=${candidate.candidate_id}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-1 cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-teal-700 hover:bg-teal-50 font-semibold flex items-center gap-1 cursor-pointer"
                 >
                   <ExternalLink className="w-3 h-3" />
                   Open Candidate Voice Room
                 </a>
               </div>
             </div>
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">
+                  <h3 className="text-sm font-bold text-zinc-900">
                     Agent 2 — Consent-Aware Screening Call Simulator
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-zinc-500">
                     Introduces itself as an AI assistant, obtains recording consent, asks approved questions, and handles candidate exceptions.
                   </p>
                 </div>
                 <button
                   onClick={() => setCustomMode(!customMode)}
-                  className="text-xs px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 cursor-pointer"
+                  className="text-xs px-3 py-1.5 rounded-xl bg-white border border-zinc-300 text-zinc-700 font-semibold hover:bg-zinc-100 cursor-pointer"
                 >
                   {customMode ? 'Switch to Preset Call Scenarios' : 'Enter Live Interactive Q&A'}
                 </button>
               </div>
 
               {customMode ? (
-                <div className="space-y-3 border-t border-slate-200 pt-4">
+                <div className="space-y-3 border-t border-zinc-200 pt-4">
                   {(requisition?.screening_questions || []).map((q, idx) => (
                     <div key={idx}>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                      <label className="block text-xs font-bold text-zinc-700 mb-1">
                         Q{idx + 1}: {q}
                       </label>
                       <input
@@ -650,19 +650,19 @@ export default function CandidateDetailPanel({
                         placeholder="Type candidate's spoken answer..."
                         value={customAnswers[idx] || ''}
                         onChange={(e) => setCustomAnswers({ ...customAnswers, [idx]: e.target.value })}
-                        className="w-full rounded-xl bg-white border border-slate-300 px-3 py-2 text-xs text-slate-900"
+                        className="w-full rounded-xl bg-white border border-zinc-300 px-3 py-2 text-xs text-zinc-900"
                       />
                     </div>
                   ))}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-bold text-zinc-700 mb-1">
                       Candidate Stated Availability Window
                     </label>
                     <input
                       type="text"
                       value={statedAvail}
                       onChange={(e) => setStatedAvail(e.target.value)}
-                      className="w-full rounded-xl bg-white border border-slate-300 px-3 py-2 text-xs text-slate-900"
+                      className="w-full rounded-xl bg-white border border-zinc-300 px-3 py-2 text-xs text-zinc-900"
                     />
                   </div>
                   <button
@@ -679,7 +679,7 @@ export default function CandidateDetailPanel({
                         'Interactive Screening Call recorded & summarized by Agent 2!'
                       )
                     }
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold cursor-pointer"
                   >
                     Submit Interactive Call & Generate Summary
                   </button>
@@ -689,7 +689,7 @@ export default function CandidateDetailPanel({
                   <select
                     value={callScenario}
                     onChange={(e) => setCallScenario(e.target.value)}
-                    className="rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-800"
+                    className="rounded-xl bg-white border border-zinc-300 px-3.5 py-2 text-xs font-semibold text-zinc-800"
                   >
                     <option value="normal">Normal Call (Consent Granted & All Questions Answered)</option>
                     <option value="unclear_audio">Edge Case: Poor Audio / Unclear Answer on Q2</option>
@@ -706,7 +706,7 @@ export default function CandidateDetailPanel({
                         `Agent 2 Screening Call (${callScenario}) executed!`
                       )
                     }
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
                   >
                     <PhoneCall className="w-3.5 h-3.5" />
                     Run Screening Call
@@ -718,16 +718,16 @@ export default function CandidateDetailPanel({
             {scrData && (
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="p-4 rounded-xl bg-white border border-slate-200">
-                    <div className="text-xs text-slate-500">Call Outcome</div>
-                    <div className="text-sm font-bold text-slate-900 mt-0.5">{scrData.call_status}</div>
+                  <div className="p-4 rounded-xl bg-white border border-zinc-200">
+                    <div className="text-xs text-zinc-500">Call Outcome</div>
+                    <div className="text-sm font-bold text-zinc-900 mt-0.5">{scrData.call_status}</div>
                   </div>
-                  <div className="p-4 rounded-xl bg-white border border-slate-200">
-                    <div className="text-xs text-slate-500">Consent Status</div>
-                    <div className="text-sm font-bold text-blue-600 mt-0.5">{scrData.consent_status}</div>
+                  <div className="p-4 rounded-xl bg-white border border-zinc-200">
+                    <div className="text-xs text-zinc-500">Consent Status</div>
+                    <div className="text-sm font-bold text-teal-600 mt-0.5">{scrData.consent_status}</div>
                   </div>
-                  <div className="p-4 rounded-xl bg-white border border-slate-200">
-                    <div className="text-xs text-slate-500">Stated Availability</div>
+                  <div className="p-4 rounded-xl bg-white border border-zinc-200">
+                    <div className="text-xs text-zinc-500">Stated Availability</div>
                     <div className="text-sm font-bold text-emerald-700 mt-0.5">
                       {scrData.candidate_stated_availability}
                     </div>
@@ -736,17 +736,17 @@ export default function CandidateDetailPanel({
 
                 {/* Factual Summary vs Separated Agent Notes */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-200">
-                    <h4 className="text-xs font-bold text-blue-900 mb-1.5">
+                  <div className="p-4 rounded-xl bg-teal-50/50 border border-teal-200">
+                    <h4 className="text-xs font-bold text-teal-900 mb-1.5">
                       Candidate Direct Statements (Factual Summary)
                     </h4>
-                    <p className="text-xs text-slate-700 leading-relaxed">{scrData.concise_summary}</p>
+                    <p className="text-xs text-zinc-700 leading-relaxed">{scrData.concise_summary}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200">
                     <h4 className="text-xs font-bold text-amber-900 mb-1.5">
                       Separated Agent Notes & Uncertainties
                     </h4>
-                    <p className="text-xs text-slate-700 leading-relaxed">{scrData.agent_interpretation_notes}</p>
+                    <p className="text-xs text-zinc-700 leading-relaxed">{scrData.agent_interpretation_notes}</p>
                     {scrData.unresolved_questions?.length > 0 && (
                       <ul className="mt-2 pt-2 border-t border-amber-200 text-xs text-amber-900 space-y-1">
                         {scrData.unresolved_questions.map((uq, i) => (
@@ -760,22 +760,22 @@ export default function CandidateDetailPanel({
                 {/* Q&A Transcript */}
                 {scrData.question_answer_pairs?.length > 0 && (
                   <div className="space-y-2.5">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                       Structured Call Transcript
                     </h4>
                     <div className="space-y-2">
                       {scrData.question_answer_pairs.map((qa, i) => (
-                        <div key={i} className="p-4 rounded-xl bg-white border border-slate-200 space-y-1.5">
+                        <div key={i} className="p-4 rounded-xl bg-white border border-zinc-200 space-y-1.5">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-bold text-slate-800">Agent 2: {qa.question}</span>
-                            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold">
+                            <span className="text-xs font-bold text-zinc-800">Agent 2: {qa.question}</span>
+                            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 font-semibold">
                               {qa.status}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-700 pl-3 border-l-2 border-blue-500">
+                          <p className="text-xs text-zinc-700 pl-3 border-l-2 border-teal-500">
                             Candidate: "{qa.candidate_answer}"
                           </p>
-                          <p className="text-[11px] text-slate-400">Note: {qa.agent_note}</p>
+                          <p className="text-[11px] text-zinc-400">Note: {qa.agent_note}</p>
                         </div>
                       ))}
                     </div>
@@ -786,15 +786,15 @@ export default function CandidateDetailPanel({
                 <div className="p-5 rounded-2xl bg-indigo-50/50 border-2 border-indigo-200 space-y-3">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
                         <UserCheck className="w-4 h-4 text-indigo-600" />
                         Human Approval Checkpoint #2 — Screening Review
                       </h4>
-                      <p className="text-xs text-slate-600">
+                      <p className="text-xs text-zinc-600">
                         Review the transcript and summary above and confirm whether the candidate proceeds to Interview Scheduling.
                       </p>
                     </div>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-white border border-zinc-200 text-zinc-700">
                       Gate #2 Status: {scrData.hr_decision}
                     </span>
                   </div>
@@ -803,7 +803,7 @@ export default function CandidateDetailPanel({
                     type="text"
                     value={screeningNote}
                     onChange={(e) => setScreeningNote(e.target.value)}
-                    className="w-full rounded-xl bg-white border border-slate-300 px-3.5 py-2 text-xs text-slate-900"
+                    className="w-full rounded-xl bg-white border border-zinc-300 px-3.5 py-2 text-xs text-zinc-900"
                   />
 
                   <div className="flex flex-wrap gap-2.5">
@@ -821,7 +821,7 @@ export default function CandidateDetailPanel({
                           'Gate #2 Approved: Candidate unlocked for Agent 3 Interview Scheduling!'
                         )
                       }
-                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       Approve for Interview
@@ -841,7 +841,7 @@ export default function CandidateDetailPanel({
                           'Candidate closed after screening review.'
                         )
                       }
-                      className="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-300 text-rose-600 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 border border-zinc-300 text-rose-600 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                     >
                       <XCircle className="w-4 h-4" />
                       Close Application
@@ -856,23 +856,23 @@ export default function CandidateDetailPanel({
         {/* ================= TAB 3: AGENT 3 & HUMAN GATE #3 ================= */}
         {activeTab === 'interview' && (
           <div className="space-y-6">
-            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-4">
               <div>
-                <h3 className="text-sm font-bold text-slate-900">
+                <h3 className="text-sm font-bold text-zinc-900">
                   Agent 3 — Calendar Availability & Time-Zone Slot Matcher
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-zinc-500">
                   Checks connected/mock interviewer calendars and proposes slots converted to both the Candidate's and Interviewer's time zones.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Interviewer Calendar</label>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1">Interviewer Calendar</label>
                   <select
                     value={selectedInterviewer}
                     onChange={(e) => setSelectedInterviewer(e.target.value)}
-                    className="w-full rounded-xl bg-white border border-slate-300 px-3 py-2 text-xs text-slate-900"
+                    className="w-full rounded-xl bg-white border border-zinc-300 px-3 py-2 text-xs text-zinc-900"
                   >
                     {(interviewers || []).map((intv) => (
                       <option key={intv.interviewer_id} value={intv.interviewer_id}>
@@ -883,11 +883,11 @@ export default function CandidateDetailPanel({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Candidate Time Zone</label>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1">Candidate Time Zone</label>
                   <select
                     value={candidateTz}
                     onChange={(e) => setCandidateTz(e.target.value)}
-                    className="w-full rounded-xl bg-white border border-slate-300 px-3 py-2 text-xs text-slate-900"
+                    className="w-full rounded-xl bg-white border border-zinc-300 px-3 py-2 text-xs text-zinc-900"
                   >
                     <option value="Asia/Karachi">Asia/Karachi (PKT UTC+05:00)</option>
                     <option value="Asia/Dubai">Asia/Dubai (GST UTC+04:00)</option>
@@ -898,11 +898,11 @@ export default function CandidateDetailPanel({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Duration</label>
+                  <label className="block text-xs font-bold text-zinc-700 mb-1">Duration</label>
                   <select
                     value={durationMins}
                     onChange={(e) => setDurationMins(Number(e.target.value))}
-                    className="w-full rounded-xl bg-white border border-slate-300 px-3 py-2 text-xs text-slate-900"
+                    className="w-full rounded-xl bg-white border border-zinc-300 px-3 py-2 text-xs text-zinc-900"
                   >
                     <option value={30}>30 Minutes</option>
                     <option value={45}>45 Minutes</option>
@@ -912,12 +912,12 @@ export default function CandidateDetailPanel({
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                <label className="inline-flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                <label className="inline-flex items-center gap-2 text-xs text-zinc-600 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={simCalFailure}
                     onChange={(e) => setSimCalFailure(e.target.checked)}
-                    className="rounded border-slate-300"
+                    className="rounded border-zinc-300"
                   />
                   Simulate Calendar API Timeout Failure (Test Safe Recovery)
                 </label>
@@ -937,7 +937,7 @@ export default function CandidateDetailPanel({
                       'Agent 3 checked interviewer calendar and proposed timezone-aligned slots!'
                     )
                   }
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   Check Availability & Propose Slots
@@ -953,7 +953,7 @@ export default function CandidateDetailPanel({
                   </div>
                 ) : (
                   <div className="space-y-2.5">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                       Verified Available Slots — Select a Slot to Draft Invitation Email
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -964,18 +964,18 @@ export default function CandidateDetailPanel({
                             key={slot.slot_id}
                             className={`p-4 rounded-xl border transition ${
                               isSelected
-                                ? 'bg-blue-50/60 border-blue-600 ring-2 ring-blue-600/10'
-                                : 'bg-white border-slate-200 hover:border-slate-300'
+                                ? 'bg-teal-50/60 border-teal-600 ring-2 ring-teal-600/10'
+                                : 'bg-white border-zinc-200 hover:border-zinc-300'
                             }`}
                           >
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-bold text-blue-600">{slot.slot_id}</span>
-                              <span className="text-[11px] text-slate-400">{slot.duration_minutes} mins</span>
+                              <span className="text-xs font-bold text-teal-600">{slot.slot_id}</span>
+                              <span className="text-[11px] text-zinc-400">{slot.duration_minutes} mins</span>
                             </div>
-                            <div className="text-xs font-bold text-slate-900">
+                            <div className="text-xs font-bold text-zinc-900">
                               Candidate ({slot.candidate_timezone}): {slot.candidate_local_time}
                             </div>
-                            <div className="text-xs text-slate-600 mt-1">
+                            <div className="text-xs text-zinc-600 mt-1">
                               Interviewer ({slot.interviewer_timezone}): {slot.interviewer_local_time}
                             </div>
                             <button
@@ -992,8 +992,8 @@ export default function CandidateDetailPanel({
                               }
                               className={`mt-3 w-full py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
                                 isSelected
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                                  ? 'bg-teal-600 text-white'
+                                  : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-800'
                               }`}
                             >
                               {isSelected ? '✓ Slot Selected & Draft Prepared' : 'Select Slot & Draft Email'}
@@ -1009,15 +1009,15 @@ export default function CandidateDetailPanel({
                   <div className="p-5 rounded-2xl bg-emerald-50/40 border-2 border-emerald-200 space-y-4">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <div>
-                        <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
                           <Mail className="w-4 h-4 text-emerald-600" />
                           Human Approval Checkpoint #3 — Confirm & Send Interview Invitation
                         </h4>
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-zinc-600">
                           Confirm candidate, interviewer, time zone, meeting link, and email content before sending.
                         </p>
                       </div>
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-white border border-slate-200 text-emerald-700">
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-white border border-zinc-200 text-emerald-700">
                         Send Status: {intData.send_status}
                       </span>
                     </div>
@@ -1030,7 +1030,7 @@ export default function CandidateDetailPanel({
                         className={`px-3 py-1.5 text-xs font-bold rounded-t-lg transition border-b-2 cursor-pointer ${
                           activeEmailTab === 'candidate'
                             ? 'border-emerald-600 text-emerald-800 bg-white'
-                            : 'border-transparent text-slate-500 hover:text-slate-800'
+                            : 'border-transparent text-zinc-500 hover:text-zinc-800'
                         }`}
                       >
                         Candidate Email ({candidate.email})
@@ -1041,7 +1041,7 @@ export default function CandidateDetailPanel({
                         className={`px-3 py-1.5 text-xs font-bold rounded-t-lg transition border-b-2 cursor-pointer ${
                           activeEmailTab === 'team_lead'
                             ? 'border-emerald-600 text-emerald-800 bg-white'
-                            : 'border-transparent text-slate-500 hover:text-slate-800'
+                            : 'border-transparent text-zinc-500 hover:text-zinc-800'
                         }`}
                       >
                         Team Lead Email ({intData.interviewer_name} &lt;{intData.interviewer_email}&gt;)
@@ -1050,35 +1050,35 @@ export default function CandidateDetailPanel({
 
                     {activeEmailTab === 'candidate' ? (
                       <div>
-                        <div className="text-[11px] font-semibold text-slate-500 mb-1">
+                        <div className="text-[11px] font-semibold text-zinc-500 mb-1">
                           Candidate Email Draft (Timezone slot + Virtual Meeting Room Link):
                         </div>
                         <textarea
                           rows={9}
                           value={emailDraftText}
                           onChange={(e) => setEmailDraftText(e.target.value)}
-                          className="w-full rounded-xl bg-white border border-slate-300 p-3.5 text-xs font-mono text-slate-800 leading-relaxed"
+                          className="w-full rounded-xl bg-white border border-zinc-300 p-3.5 text-xs font-mono text-zinc-800 leading-relaxed"
                         />
                       </div>
                     ) : (
                       <div>
-                        <div className="text-[11px] font-semibold text-slate-500 mb-1">
+                        <div className="text-[11px] font-semibold text-zinc-500 mb-1">
                           Team Lead Briefing Email Draft (Candidate score summary, questions & meeting link):
                         </div>
                         <textarea
                           rows={9}
                           value={teamLeadDraftText || intData.team_lead_email_draft || ''}
                           onChange={(e) => setTeamLeadDraftText(e.target.value)}
-                          className="w-full rounded-xl bg-white border border-slate-300 p-3.5 text-xs font-mono text-slate-800 leading-relaxed"
+                          className="w-full rounded-xl bg-white border border-zinc-300 p-3.5 text-xs font-mono text-zinc-800 leading-relaxed"
                         />
                       </div>
                     )}
 
                     {/* Virtual Meeting Link preview */}
                     <div className="p-3 rounded-xl bg-white border border-emerald-200 flex items-center justify-between flex-wrap gap-2 text-xs">
-                      <div className="flex items-center gap-1.5 text-slate-700">
+                      <div className="flex items-center gap-1.5 text-zinc-700">
                         <span className="font-semibold text-emerald-700">Meeting Room Link:</span>
-                        <code className="text-[11px] text-blue-600 bg-slate-50 px-2 py-0.5 rounded">
+                        <code className="text-[11px] text-teal-600 bg-zinc-50 px-2 py-0.5 rounded">
                           http://localhost:5173/interview-room?candidate_id={candidate.candidate_id}
                         </code>
                       </div>
@@ -1094,12 +1094,12 @@ export default function CandidateDetailPanel({
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                      <label className="inline-flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                      <label className="inline-flex items-center gap-2 text-xs text-zinc-600 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={simEmailFailure}
                           onChange={(e) => setSimEmailFailure(e.target.checked)}
-                          className="rounded border-slate-300"
+                          className="rounded border-zinc-300"
                         />
                         Simulate Email Provider 502 Failure (Retains draft for safe retry)
                       </label>
@@ -1134,7 +1134,7 @@ export default function CandidateDetailPanel({
                         <div className="font-bold">✓ Dual Invitations Sent via Mailtrap / SMTP:</div>
                         <div>• Candidate: <code>{candidate.email}</code></div>
                         <div>• Team Lead: <code>{intData.interviewer_email}</code></div>
-                        <div className="text-[11px] text-slate-500 pt-0.5">
+                        <div className="text-[11px] text-zinc-500 pt-0.5">
                           Provider Ref: <code>{intData.provider_message_id}</code> · Idempotency Key: <code>{intData.idempotency_key}</code>
                         </div>
                       </div>
@@ -1150,29 +1150,29 @@ export default function CandidateDetailPanel({
         {activeTab === 'history' && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center gap-1.5">
-                <History className="w-4 h-4 text-blue-600" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2.5 flex items-center gap-1.5">
+                <History className="w-4 h-4 text-teal-600" />
                 Candidate Audit & Event History
               </h3>
               <div className="space-y-2 max-h-80 overflow-y-auto">
                 {(candidate.audit_events || []).map((ev) => (
                   <div
                     key={ev.event_id}
-                    className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start justify-between gap-3"
+                    className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 flex items-start justify-between gap-3"
                   >
                     <div>
-                      <div className="text-xs font-bold text-slate-900">{ev.action}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">
-                        Actor: <strong className="text-slate-700">{ev.actor}</strong> ({ev.actor_role}) · Entity:{' '}
+                      <div className="text-xs font-bold text-zinc-900">{ev.action}</div>
+                      <div className="text-xs text-zinc-500 mt-0.5">
+                        Actor: <strong className="text-zinc-700">{ev.actor}</strong> ({ev.actor_role}) · Entity:{' '}
                         {ev.entity_type}
                       </div>
                       {ev.details && Object.keys(ev.details).length > 0 && (
-                        <pre className="mt-1.5 text-[11px] text-slate-600 bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto">
+                        <pre className="mt-1.5 text-[11px] text-zinc-600 bg-white p-2 rounded-lg border border-zinc-200 overflow-x-auto">
                           {JSON.stringify(ev.details, null, 2)}
                         </pre>
                       )}
                     </div>
-                    <span className="text-[11px] text-slate-400 shrink-0">
+                    <span className="text-[11px] text-zinc-400 shrink-0">
                       {ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString() : ''}
                     </span>
                   </div>
@@ -1181,11 +1181,11 @@ export default function CandidateDetailPanel({
             </div>
 
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-blue-600" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2.5 flex items-center gap-1.5">
+                <FileText className="w-4 h-4 text-teal-600" />
                 Extracted Resume Text ({candidate.resume_filename})
               </h3>
-              <pre className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 whitespace-pre-wrap font-mono max-h-64 overflow-y-auto">
+              <pre className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-700 whitespace-pre-wrap font-mono max-h-64 overflow-y-auto">
                 {candidate.extracted_text || '[Unreadable file — No text extracted]'}
               </pre>
             </div>

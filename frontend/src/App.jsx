@@ -19,7 +19,8 @@ import {
   Trash2,
   ShieldCheck,
   Edit,
-  ExternalLink,
+  Layers,
+  CheckCircle2,
 } from 'lucide-react';
 import { api } from './api/client';
 import StatusBadge from './components/StatusBadge';
@@ -259,7 +260,7 @@ export default function App() {
     );
   }
 
-  // 3. HR SAAS ADMIN PORTAL
+  // 5. HR SAAS ADMIN PORTAL
   const candidatesForSelectedJob =
     selectedReqId === 'ALL'
       ? allCandidates
@@ -298,130 +299,160 @@ export default function App() {
   ).length;
   const kpiNeedsReview = candidatesForSelectedJob.filter((c) => c.current_status === 'Needs Manual Review').length;
 
-  const sidebarItems = [
+  const workspaceItems = [
     { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
-    { id: 'jobs', label: 'Job Openings', icon: Briefcase, badge: requisitions.length },
-    { id: 'candidates', label: 'Candidates & Scores', icon: Users, badge: totalApplicants },
-    { id: 'screenings', label: 'Screening Calls', icon: PhoneCall, badge: kpiShortlisted || null },
-    { id: 'interviews', label: 'Interviews', icon: Calendar, badge: kpiInterviews || null },
-    { id: 'audit', label: 'Audit Trail', icon: Activity },
+    { id: 'jobs', label: 'Job Requisitions', icon: Briefcase, badge: requisitions.length },
+    { id: 'candidates', label: 'Talent Pipeline', icon: Users, badge: totalApplicants },
   ];
 
+  const pipelineItems = [
+    { id: 'screenings', label: 'Voice Screenings', icon: PhoneCall, badge: kpiShortlisted || null },
+    { id: 'interviews', label: 'Interviews & Slots', icon: Calendar, badge: kpiInterviews || null },
+    { id: 'audit', label: 'Audit & Compliance', icon: Activity },
+  ];
+
+  const renderNavButton = (item) => {
+    const Icon = item.icon;
+    const active = adminSection === item.id;
+    return (
+      <button
+        key={item.id}
+        onClick={async () => {
+          setAdminSection(item.id);
+          await loadWorkspace();
+          if (item.id === 'audit') {
+            const logs = await api.getAuditLogs();
+            setGlobalAuditLogs(logs);
+          }
+        }}
+        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+          active
+            ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md shadow-teal-950/50'
+            : 'text-zinc-400 hover:bg-white/5 hover:text-white'
+        }`}
+      >
+        <span className="flex items-center gap-3 truncate">
+          <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-zinc-500'}`} />
+          <span className="truncate">{item.label}</span>
+        </span>
+        {item.badge !== undefined && item.badge !== null && (
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0 ml-2 ${
+              active ? 'bg-black/25 text-white' : 'bg-zinc-800 text-zinc-300 border border-zinc-700'
+            }`}
+          >
+            {item.badge}
+          </span>
+        )}
+      </button>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex">
-      {/* Left SaaS Sidebar */}
-      <aside className="w-72 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 hidden lg:flex">
-        <div className="p-4 space-y-5">
-          <div className="flex items-center gap-3 px-1 pt-1">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-base font-extrabold text-slate-900 tracking-tight leading-none">TalentSense</div>
-              <div className="text-[11px] text-slate-500 font-medium mt-1">AI HR Admin Suite</div>
+    <div className="min-h-screen bg-[#F3F5F8] text-zinc-900 flex">
+      {/* Executive Dark Obsidian SaaS Sidebar */}
+      <aside className="w-68 bg-[#0B121E] text-zinc-300 border-r border-zinc-800/80 flex flex-col justify-between shrink-0 hidden lg:flex">
+        <div className="p-4 space-y-6">
+          {/* Brand Logo Header */}
+          <div className="flex items-center justify-between px-2 pt-1.5">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center text-zinc-950 font-black shadow-lg shadow-teal-500/20 shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-base font-extrabold text-white tracking-tight leading-none flex items-center gap-1.5">
+                  <span>TalentSense</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-teal-500/15 text-teal-300 border border-teal-500/30">
+                    OS
+                  </span>
+                </div>
+                <div className="text-[11px] text-zinc-400 font-medium mt-1">Enterprise Recruiting Cloud</div>
+              </div>
             </div>
           </div>
 
-          <nav className="space-y-1">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              const active = adminSection === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={async () => {
-                    setAdminSection(item.id);
-                    await loadWorkspace();
-                    if (item.id === 'audit') {
-                      const logs = await api.getAuditLogs();
-                      setGlobalAuditLogs(logs);
-                    }
-                  }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                    active
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                  }`}
-                >
-                  <span className="flex items-center gap-3 truncate">
-                    <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-slate-400'}`} />
-                    <span className="truncate">{item.label}</span>
-                  </span>
-                  {item.badge !== undefined && item.badge !== null && (
-                    <span
-                      className={`text-[11px] px-2 py-0.5 rounded-full font-bold shrink-0 ml-2 ${
-                        active ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+          {/* Navigation Groups */}
+          <div className="space-y-5">
+            <div className="space-y-1">
+              <div className="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
+                Core Workspace
+              </div>
+              {workspaceItems.map(renderNavButton)}
+            </div>
 
-          {/* Database & Quick Links */}
-          <div className="pt-3 border-t border-slate-100 space-y-1">
-            <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
+                AI Agent Pipeline
+              </div>
+              {pipelineItems.map(renderNavButton)}
+            </div>
+          </div>
+
+          {/* System & Quick Links */}
+          <div className="pt-4 border-t border-zinc-800/80 space-y-1.5">
+            <div className="px-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
+              Environment & Links
+            </div>
+
+            <div className="px-3.5 py-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-[11px] text-zinc-300 flex items-center justify-between">
               <span className="flex items-center gap-2 truncate">
-                <Database className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <Database className="w-3.5 h-3.5 text-teal-400 shrink-0" />
                 <span className="font-semibold truncate">
                   {health?.database_engine?.includes('PostgreSQL') && !health?.database_engine?.includes('Fallback')
-                    ? 'PostgreSQL'
-                    : 'SQLite (Local DB)'}
+                    ? 'PostgreSQL Primary'
+                    : 'Persistent SQL Engine'}
                 </span>
               </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Connected & Active" />
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400 shrink-0" title="Connected & Active" />
             </div>
 
             <button
               onClick={() => navigateTo('public')}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-blue-50 text-xs font-semibold text-blue-600 transition cursor-pointer"
+              className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl hover:bg-teal-500/10 text-xs font-semibold text-teal-300 hover:text-teal-200 transition cursor-pointer"
             >
               <span className="flex items-center gap-2.5">
                 <Globe className="w-3.5 h-3.5" />
-                Public Careers Site
+                Public Careers Portal
               </span>
-              <span className="text-slate-400 text-xs">↗</span>
+              <span className="text-zinc-500 text-xs">↗</span>
             </button>
 
             <button
               onClick={() => handleResetDemo(true)}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 text-xs font-medium text-slate-600 transition cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl hover:bg-white/5 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
-              Reload Demo Dataset
+              <RotateCcw className="w-3.5 h-3.5 text-zinc-500" />
+              Restore Sample Dataset
             </button>
 
             <button
               onClick={() => handleResetDemo(false)}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-rose-50 text-xs font-medium text-slate-500 hover:text-rose-600 transition cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl hover:bg-rose-500/10 text-xs font-medium text-zinc-400 hover:text-rose-400 transition cursor-pointer"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-3.5 h-3.5 text-zinc-500" />
               Clear All Demo Data
             </button>
           </div>
         </div>
 
         {/* Staff User Footer */}
-        <div className="p-3.5 border-t border-slate-200 bg-slate-50/70 flex items-center justify-between gap-3">
+        <div className="p-3.5 border-t border-zinc-800/80 bg-[#070C15] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-xs font-extrabold text-white shrink-0 shadow-xs">
               {actorName.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold text-slate-900 truncate leading-tight" title={actorName}>
+              <div className="text-xs font-bold text-white truncate leading-tight" title={actorName}>
                 {actorName.split('(')[0].trim()}
               </div>
-              <div className="text-[10px] text-slate-500 font-medium truncate">{userRole}</div>
+              <div className="text-[10px] text-teal-400 font-semibold truncate">{userRole}</div>
             </div>
           </div>
 
           <button
             onClick={handleLogout}
             title="Sign Out"
-            className="p-2 rounded-xl bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition cursor-pointer shrink-0"
+            className="p-2 rounded-lg bg-zinc-900 hover:bg-rose-500/15 border border-zinc-800 hover:border-rose-500/30 text-zinc-400 hover:text-rose-400 transition cursor-pointer shrink-0"
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -430,45 +461,50 @@ export default function App() {
 
       {/* Main Right Workspace */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Admin Header Bar */}
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-20 px-6 py-3 min-h-[64px] flex items-center justify-between gap-4 shadow-2xs">
+        {/* Top SaaS Command Bar */}
+        <header className="bg-white/95 backdrop-blur-md border-b border-zinc-200/80 sticky top-0 z-20 px-6 py-3 min-h-[66px] flex items-center justify-between gap-4 shadow-2xs">
           <div className="flex items-center gap-3 min-w-0">
-            <h1 className="text-base font-bold text-slate-900 whitespace-nowrap">
-              {adminSection === 'dashboard' && 'Recruitment Overview'}
-              {adminSection === 'jobs' && 'Job Openings & Rubrics'}
-              {adminSection === 'candidates' && 'Candidates & Agent 1 Scores'}
-              {adminSection === 'screenings' && 'Agent 2 Phone Screenings'}
-              {adminSection === 'interviews' && 'Agent 3 Interview Scheduling'}
-              {adminSection === 'audit' && 'Compliance & Audit Trail'}
-            </h1>
+            <div>
+              <h1 className="text-base font-extrabold text-zinc-900 whitespace-nowrap tracking-tight">
+                {adminSection === 'dashboard' && 'Recruitment Command Center'}
+                {adminSection === 'jobs' && 'Job Requisitions & Scoring Rubrics'}
+                {adminSection === 'candidates' && 'Talent Pipeline & Agent 1 Scores'}
+                {adminSection === 'screenings' && 'Agent 2 Voice Screening Studio'}
+                {adminSection === 'interviews' && 'Agent 3 Smart Interview Scheduling'}
+                {adminSection === 'audit' && 'System Audit & Governance Log'}
+              </h1>
+            </div>
 
-            {/* Filter by Job Requisition (Defaults to ALL so every public applicant is visible!) */}
+            {/* Filter by Job Requisition */}
             {['dashboard', 'candidates', 'screenings', 'interviews'].includes(adminSection) && (
               <div className="hidden sm:flex items-center gap-2">
-                <span className="text-slate-300 font-light">|</span>
-                <select
-                  value={selectedReqId}
-                  onChange={(e) => {
-                    const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
-                    setSelectedReqId(val);
-                  }}
-                  className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white focus:bg-white focus:outline-none focus:border-blue-600 max-w-[260px] truncate cursor-pointer transition shadow-2xs"
-                >
-                  <option value="ALL">All Jobs ({allCandidates.length} applicants)</option>
-                  {requisitions.map((r) => (
-                    <option key={r.requisition_id} value={r.requisition_id}>
-                      #{r.requisition_id}: {r.title} ({r.candidate_count || 0})
-                    </option>
-                  ))}
-                </select>
+                <span className="text-zinc-300 font-light">|</span>
+                <div className="flex items-center gap-1.5 bg-zinc-100/80 border border-zinc-200/80 rounded-xl px-2.5 py-1.5">
+                  <Layers className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                  <select
+                    value={selectedReqId}
+                    onChange={(e) => {
+                      const val = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
+                      setSelectedReqId(val);
+                    }}
+                    className="bg-transparent text-xs font-bold text-zinc-800 focus:outline-none max-w-[260px] truncate cursor-pointer"
+                  >
+                    <option value="ALL">All Open Jobs ({allCandidates.length} applicants)</option>
+                    {requisitions.map((r) => (
+                      <option key={r.requisition_id} value={r.requisition_id}>
+                        #{r.requisition_id}: {r.title} ({r.candidate_count || 0})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             {/* Role Switcher */}
-            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-zinc-100/80 border border-zinc-200/80 rounded-xl px-3 py-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
               <select
                 value={userRole}
                 onChange={(e) => {
@@ -476,7 +512,7 @@ export default function App() {
                   setUserRole(r);
                   setActorName(`${r} (${loggedInUser?.name?.split(' ')[0] || 'Staff'})`);
                 }}
-                className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs font-bold text-zinc-700 focus:outline-none cursor-pointer"
               >
                 <option value="HR Recruiter">Role: HR Recruiter</option>
                 <option value="Hiring Manager">Role: Hiring Manager</option>
@@ -485,8 +521,8 @@ export default function App() {
               </select>
             </div>
 
-            <label className="cursor-pointer px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition">
-              <Upload className="w-3.5 h-3.5 text-slate-500" />
+            <label className="cursor-pointer px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition">
+              <Upload className="w-3.5 h-3.5 text-teal-600" />
               <span className="hidden sm:inline">{uploading ? 'Scoring...' : 'Upload Resumes'}</span>
               <span className="sm:hidden">{uploading ? '...' : 'Upload'}</span>
               <input
@@ -500,9 +536,9 @@ export default function App() {
 
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm shadow-teal-900/15 transition cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Post New Job</span>
               <span className="sm:hidden">New Job</span>
             </button>
@@ -513,14 +549,17 @@ export default function App() {
         <main className="p-6 space-y-6 flex-1 max-w-7xl w-full mx-auto">
           {banner && (
             <div
-              className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center justify-between ${
+              className={`p-3.5 rounded-xl border text-xs font-bold flex items-center justify-between shadow-2xs ${
                 banner.type === 'error'
                   ? 'bg-rose-50 border-rose-200 text-rose-700'
-                  : 'bg-blue-50 border-blue-200 text-blue-800'
+                  : 'bg-teal-50 border-teal-200 text-teal-900'
               }`}
             >
-              <span>{banner.text}</span>
-              <button onClick={() => setBanner(null)} className="text-slate-400 hover:text-slate-700">
+              <span className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
+                {banner.text}
+              </span>
+              <button onClick={() => setBanner(null)} className="text-zinc-400 hover:text-zinc-700 cursor-pointer">
                 ✕
               </button>
             </div>
@@ -529,48 +568,54 @@ export default function App() {
           {/* ================= PAGE 1: OVERVIEW DASHBOARD ================= */}
           {adminSection === 'dashboard' && (
             <div className="space-y-6">
-              {/* KPI Cards */}
+              {/* Executive KPI Cards with Top Accent Bars */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div
                   onClick={() => setAdminSection('candidates')}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-blue-400 cursor-pointer transition"
+                  className="p-5 rounded-2xl bg-white border border-zinc-200/80 border-t-4 border-t-teal-500 shadow-2xs hover:shadow-md cursor-pointer transition group"
                 >
-                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                  <div className="flex items-center justify-between text-xs font-bold text-zinc-500">
                     <span>Total Applicants</span>
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                    <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600 group-hover:scale-105 transition">
                       <Users className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-3xl font-bold text-slate-900 mt-3">{totalApplicants}</div>
-                  <div className="text-xs text-blue-600 font-medium mt-1">Agent 1 Scores & Gate #1 →</div>
+                  <div className="text-3xl font-extrabold text-zinc-900 mt-3 tracking-tight">{totalApplicants}</div>
+                  <div className="text-xs text-teal-700 font-bold mt-1.5 flex items-center gap-1">
+                    Agent 1 Rubric Scores & Gate #1 <ArrowRight className="w-3 h-3" />
+                  </div>
                 </div>
 
                 <div
                   onClick={() => setAdminSection('screenings')}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-blue-400 cursor-pointer transition"
+                  className="p-5 rounded-2xl bg-white border border-zinc-200/80 border-t-4 border-t-violet-500 shadow-2xs hover:shadow-md cursor-pointer transition group"
                 >
-                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                  <div className="flex items-center justify-between text-xs font-bold text-zinc-500">
                     <span>Shortlisted / Screening</span>
-                    <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                    <div className="w-9 h-9 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 group-hover:scale-105 transition">
                       <PhoneCall className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-3xl font-bold text-slate-900 mt-3">{kpiShortlisted}</div>
-                  <div className="text-xs text-indigo-600 font-medium mt-1">Agent 2 Calls & Gate #2 →</div>
+                  <div className="text-3xl font-extrabold text-zinc-900 mt-3 tracking-tight">{kpiShortlisted}</div>
+                  <div className="text-xs text-violet-700 font-bold mt-1.5 flex items-center gap-1">
+                    Agent 2 Voice Calls & Gate #2 <ArrowRight className="w-3 h-3" />
+                  </div>
                 </div>
 
                 <div
                   onClick={() => setAdminSection('interviews')}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-blue-400 cursor-pointer transition"
+                  className="p-5 rounded-2xl bg-white border border-zinc-200/80 border-t-4 border-t-emerald-500 shadow-2xs hover:shadow-md cursor-pointer transition group"
                 >
-                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                  <div className="flex items-center justify-between text-xs font-bold text-zinc-500">
                     <span>Interview Stage</span>
-                    <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition">
                       <Calendar className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-3xl font-bold text-slate-900 mt-3">{kpiInterviews}</div>
-                  <div className="text-xs text-emerald-600 font-medium mt-1">Agent 3 Slots & Gate #3 →</div>
+                  <div className="text-3xl font-extrabold text-zinc-900 mt-3 tracking-tight">{kpiInterviews}</div>
+                  <div className="text-xs text-emerald-700 font-bold mt-1.5 flex items-center gap-1">
+                    Agent 3 Slots & Gate #3 <ArrowRight className="w-3 h-3" />
+                  </div>
                 </div>
 
                 <div
@@ -578,42 +623,44 @@ export default function App() {
                     setStatusFilter('Needs Manual Review');
                     setAdminSection('candidates');
                   }}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-amber-400 cursor-pointer transition"
+                  className="p-5 rounded-2xl bg-white border border-zinc-200/80 border-t-4 border-t-amber-500 shadow-2xs hover:shadow-md cursor-pointer transition group"
                 >
-                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                  <div className="flex items-center justify-between text-xs font-bold text-zinc-500">
                     <span>Needs Manual Review</span>
-                    <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:scale-105 transition">
                       <AlertTriangle className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="text-3xl font-bold text-slate-900 mt-3">{kpiNeedsReview}</div>
-                  <div className="text-xs text-amber-700 font-medium mt-1">Unreadable files / exceptions →</div>
+                  <div className="text-3xl font-extrabold text-zinc-900 mt-3 tracking-tight">{kpiNeedsReview}</div>
+                  <div className="text-xs text-amber-700 font-bold mt-1.5 flex items-center gap-1">
+                    Unreadable files / exceptions <ArrowRight className="w-3 h-3" />
+                  </div>
                 </div>
               </div>
 
-              {/* Unified Applicants Table (Shows Public Website Applicants & Uploads across all jobs!) */}
-              <div className="bg-white border border-slate-200 rounded-2xl shadow-2xs overflow-hidden">
-                <div className="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              {/* Unified Applicants Table */}
+              <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-2xs overflow-hidden">
+                <div className="p-5 border-b border-zinc-100 flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h2 className="text-base font-bold text-slate-900">
-                      Candidate Applications ({candidatesForSelectedJob.length})
+                    <h2 className="text-base font-extrabold text-zinc-900 tracking-tight">
+                      Live Candidate Pipeline ({candidatesForSelectedJob.length})
                     </h2>
-                    <p className="text-xs text-slate-500">
-                      Showing real-time applications from the Public Careers Website and recruiter uploads.
+                    <p className="text-xs text-zinc-500 mt-0.5">
+                      Real-time applications synced from the Public Careers Portal and recruiter batch uploads.
                     </p>
                   </div>
                   <button
                     onClick={() => setAdminSection('candidates')}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-xs font-bold text-teal-700 flex items-center gap-1.5 transition cursor-pointer"
                   >
-                    Open Full Candidate Workspace <ArrowRight className="w-3.5 h-3.5" />
+                    Open Full 3-Agent Workspace <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {candidatesForSelectedJob.length === 0 ? (
                   <div className="p-12 text-center space-y-3">
-                    <div className="text-sm font-semibold text-slate-700">No candidate applications yet.</div>
-                    <p className="text-xs text-slate-500">
+                    <div className="text-sm font-bold text-zinc-700">No candidate applications yet.</div>
+                    <p className="text-xs text-zinc-500">
                       Apply to a job from the Public Careers Website or click "Upload Resumes" above.
                     </p>
                   </div>
@@ -621,16 +668,16 @@ export default function App() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                          <th className="py-3 px-5">Candidate</th>
-                          <th className="py-3 px-4">Applied Role</th>
-                          <th className="py-3 px-4">Agent 1 Score</th>
-                          <th className="py-3 px-4">Current Status</th>
-                          <th className="py-3 px-4">Time Zone</th>
-                          <th className="py-3 px-5 text-right">Action</th>
+                        <tr className="border-b border-zinc-200/70 bg-zinc-50/80 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                          <th className="py-3.5 px-5">Candidate Profile</th>
+                          <th className="py-3.5 px-4">Target Requisition</th>
+                          <th className="py-3.5 px-4">Agent 1 Match Score</th>
+                          <th className="py-3.5 px-4">Pipeline Stage</th>
+                          <th className="py-3.5 px-4">Time Zone</th>
+                          <th className="py-3.5 px-5 text-right">Workflow</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 text-sm">
+                      <tbody className="divide-y divide-zinc-100 text-sm">
                         {candidatesForSelectedJob.map((cand) => (
                           <tr
                             key={cand.candidate_id}
@@ -638,36 +685,45 @@ export default function App() {
                               setSelectedCandidateId(cand.candidate_id);
                               setAdminSection('candidates');
                             }}
-                            className="hover:bg-slate-50/90 transition cursor-pointer"
+                            className="hover:bg-teal-50/30 transition cursor-pointer group"
                           >
                             <td className="py-3.5 px-5">
-                              <div className="font-bold text-slate-900 flex items-center gap-2">
-                                {cand.name}
-                                {cand.evaluation?.parsing_warnings?.length > 0 && (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 font-semibold">
-                                    ⚠️ Prompt Injection Flag
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-xs text-slate-500">
-                                {cand.email} · <span className="text-slate-400">{cand.resume_filename}</span>
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-zinc-100 group-hover:bg-teal-600 group-hover:text-white text-zinc-700 font-bold text-xs flex items-center justify-center shrink-0 transition">
+                                  {(cand.name || 'CA').slice(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-zinc-900 flex items-center gap-2">
+                                    {cand.name}
+                                    {cand.evaluation?.parsing_warnings?.length > 0 && (
+                                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 font-bold">
+                                        ⚠️ Prompt Injection Flag
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-zinc-500">
+                                    {cand.email} · <span className="text-zinc-400">{cand.resume_filename}</span>
+                                  </div>
+                                </div>
                               </div>
                             </td>
                             <td className="py-3.5 px-4">
-                              <span className="text-xs font-semibold text-slate-800">{cand.job_title}</span>
-                              <div className="text-[11px] text-slate-400">{cand.department}</div>
+                              <span className="text-xs font-bold text-zinc-800">{cand.job_title}</span>
+                              <div className="text-[11px] text-zinc-400 font-medium">{cand.department}</div>
                             </td>
                             <td className="py-3.5 px-4">
                               {cand.evaluation ? (
-                                <div className="flex items-center gap-2">
-                                  <span className="font-bold text-slate-900">{cand.evaluation.total_score}/100</span>
-                                  <div className="w-16 bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div className="flex items-center gap-2.5">
+                                  <span className="font-mono font-bold text-xs text-zinc-900">
+                                    {cand.evaluation.total_score}/100
+                                  </span>
+                                  <div className="w-20 bg-zinc-100 h-2 rounded-full overflow-hidden">
                                     <div
                                       className={`h-full rounded-full ${
                                         cand.evaluation.total_score >= 75
                                           ? 'bg-emerald-500'
                                           : cand.evaluation.total_score >= 50
-                                          ? 'bg-blue-500'
+                                          ? 'bg-teal-500'
                                           : 'bg-amber-500'
                                       }`}
                                       style={{ width: `${cand.evaluation.total_score}%` }}
@@ -675,16 +731,16 @@ export default function App() {
                                   </div>
                                 </div>
                               ) : (
-                                <span className="text-xs text-amber-700 font-semibold">Unreadable File</span>
+                                <span className="text-xs text-amber-700 font-bold">Unreadable File</span>
                               )}
                             </td>
                             <td className="py-3.5 px-4">
                               <StatusBadge status={cand.current_status} />
                             </td>
-                            <td className="py-3.5 px-4 text-xs text-slate-600">{cand.timezone}</td>
+                            <td className="py-3.5 px-4 text-xs font-medium text-zinc-600">{cand.timezone}</td>
                             <td className="py-3.5 px-5 text-right">
-                              <button className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white text-xs font-semibold transition cursor-pointer">
-                                Open Workflow →
+                              <button className="px-3.5 py-1.5 rounded-xl bg-zinc-100 group-hover:bg-teal-600 text-zinc-700 group-hover:text-white text-xs font-bold transition cursor-pointer">
+                                Review →
                               </button>
                             </td>
                           </tr>
@@ -702,16 +758,16 @@ export default function App() {
             <div className="space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <h2 className="text-base font-bold text-slate-900">
-                    Active Job Requisitions ({requisitions.length})
+                  <h2 className="text-base font-extrabold text-zinc-900 tracking-tight">
+                    Published Job Requisitions ({requisitions.length})
                   </h2>
-                  <p className="text-xs text-slate-500">
-                    Every job posted here is immediately live on the Public Candidate Careers Website.
+                  <p className="text-xs text-zinc-500">
+                    Every job requisition configured here is immediately live on the Public Candidate Careers Portal.
                   </p>
                 </div>
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   Create New Job Requisition
@@ -722,15 +778,15 @@ export default function App() {
                 {requisitions.map((r) => (
                   <div
                     key={r.requisition_id}
-                    className="bg-white border border-slate-200 hover:border-blue-300 rounded-2xl p-6 shadow-2xs hover:shadow-md transition flex flex-col justify-between space-y-4 group"
+                    className="bg-white border border-zinc-200/90 hover:border-teal-400 rounded-2xl p-6 shadow-2xs hover:shadow-md transition flex flex-col justify-between space-y-4 group"
                   >
-                    <div className="space-y-2.5">
+                    <div className="space-y-3">
                       <div className="flex items-start justify-between gap-2">
-                        <span className="text-xs font-bold text-blue-600">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-md border border-teal-200/60">
                           #{r.requisition_id} · {r.department}
                         </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <div className="flex items-center gap-1">
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             {r.status}
                           </span>
                           <button
@@ -739,7 +795,7 @@ export default function App() {
                               e.stopPropagation();
                               setEditingRequisition(r);
                             }}
-                            className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 cursor-pointer"
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-teal-600 hover:bg-teal-50 cursor-pointer"
                             title="Edit Job Requisition & Rubric"
                           >
                             <Edit className="w-3.5 h-3.5" />
@@ -750,7 +806,7 @@ export default function App() {
                               e.stopPropagation();
                               handleDeleteRequisition(r.requisition_id, r.title);
                             }}
-                            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
                             title="Delete Job Requisition"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -760,18 +816,18 @@ export default function App() {
 
                       <h3
                         onClick={() => setEditingRequisition(r)}
-                        className="text-lg font-bold text-slate-900 group-hover:text-blue-600 cursor-pointer transition flex items-center justify-between"
+                        className="text-lg font-extrabold text-zinc-900 group-hover:text-teal-700 cursor-pointer transition tracking-tight"
                       >
-                        <span>{r.title}</span>
+                        {r.title}
                       </h3>
 
-                      <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">{r.job_description}</p>
+                      <p className="text-xs text-zinc-500 line-clamp-3 leading-relaxed">{r.job_description}</p>
 
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {(r.required_skills || []).map((sk) => (
                           <span
                             key={sk}
-                            className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium"
+                            className="text-[11px] px-2.5 py-0.5 rounded-md bg-zinc-100 text-zinc-700 font-semibold"
                           >
                             {sk}
                           </span>
@@ -779,29 +835,29 @@ export default function App() {
                       </div>
 
                       {/* Assigned Team Lead Badge */}
-                      <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-100 text-xs text-blue-900 flex items-center gap-2">
-                        <ShieldCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <div className="p-2.5 rounded-xl bg-teal-50/60 border border-teal-100 text-xs text-teal-950 flex items-center gap-2">
+                        <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                         <span className="truncate">
-                          <strong>Assigned Lead:</strong> {r.assigned_interviewer_name || 'Sarah Jenkins (Lead ML Engineer)'}
+                          <strong>Team Lead:</strong> {r.assigned_interviewer_name || 'Sarah Jenkins (Lead ML Engineer)'}
                         </span>
                       </div>
 
-                      <div className="text-[11px] text-slate-400 pt-0.5">
-                        Rubric Weights: Skills {r.rubric?.required_skills}% · Exp {r.rubric?.relevant_experience}% ·
+                      <div className="text-[11px] text-zinc-400 font-medium pt-0.5">
+                        Rubric: Skills {r.rubric?.required_skills}% · Exp {r.rubric?.relevant_experience}% ·
                         Projects {r.rubric?.role_related_projects}%
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-700">{r.candidate_count || 0} Applicants</span>
+                    <div className="pt-4 border-t border-zinc-100 flex items-center justify-between gap-2">
+                      <span className="text-xs font-extrabold text-zinc-800">{r.candidate_count || 0} Applicants</span>
 
                       <div className="flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => setEditingRequisition(r)}
-                          className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl border border-zinc-200 hover:bg-zinc-50 text-zinc-700 text-xs font-bold transition cursor-pointer"
                         >
-                          Edit Details
+                          Edit Rubric
                         </button>
                         <button
                           type="button"
@@ -809,9 +865,9 @@ export default function App() {
                             setSelectedReqId(r.requisition_id);
                             setAdminSection('candidates');
                           }}
-                          className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition cursor-pointer"
+                          className="px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-teal-600 text-white text-xs font-bold transition cursor-pointer"
                         >
-                          Applicants →
+                          Pipeline →
                         </button>
                       </div>
                     </div>
@@ -825,24 +881,24 @@ export default function App() {
           {['candidates', 'screenings', 'interviews'].includes(adminSection) && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               {/* Left Candidate Queue */}
-              <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-3">
-                <div className="space-y-2.5 pb-3 border-b border-slate-100">
+              <div className="lg:col-span-4 bg-white border border-zinc-200/80 rounded-2xl p-4 shadow-2xs space-y-3">
+                <div className="space-y-2.5 pb-3 border-b border-zinc-100">
                   <div className="relative">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
                     <input
                       type="text"
                       value={searchCandidate}
                       onChange={(e) => setSearchCandidate(e.target.value)}
-                      placeholder="Search candidate name, email..."
-                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 transition"
+                      placeholder="Search candidate name, email, role..."
+                      className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600 transition"
                     />
                   </div>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer focus:outline-none focus:border-blue-600 transition"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs font-bold text-zinc-700 cursor-pointer focus:outline-none focus:border-teal-600 transition"
                   >
-                    <option value="ALL">All Statuses ({candidatesForSelectedJob.length})</option>
+                    <option value="ALL">All Lifecycle Stages ({candidatesForSelectedJob.length})</option>
                     {(health?.lifecycle_statuses || []).map((st) => (
                       <option key={st} value={st}>
                         {st}
@@ -860,31 +916,31 @@ export default function App() {
                         onClick={() => setSelectedCandidateId(cand.candidate_id)}
                         className={`p-3.5 rounded-xl border cursor-pointer transition ${
                           isSelected
-                            ? 'bg-blue-50/60 border-blue-600 ring-2 ring-blue-600/10'
-                            : 'bg-white border-slate-200 hover:border-slate-300'
+                            ? 'bg-teal-50/50 border-teal-600 ring-2 ring-teal-600/10 shadow-2xs'
+                            : 'bg-white border-zinc-200/80 hover:border-zinc-300'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <div className="font-bold text-sm text-slate-900">{cand.name}</div>
-                            <div className="text-[11px] font-medium text-blue-600 truncate max-w-[190px]">
+                          <div className="min-w-0">
+                            <div className="font-bold text-sm text-zinc-900 truncate">{cand.name}</div>
+                            <div className="text-[11px] font-bold text-teal-700 truncate max-w-[190px]">
                               {cand.job_title}
                             </div>
-                            <div className="text-[11px] text-slate-400 truncate max-w-[190px]">{cand.email}</div>
+                            <div className="text-[11px] text-zinc-400 truncate max-w-[190px]">{cand.email}</div>
                           </div>
                           {cand.evaluation ? (
-                            <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold shrink-0">
+                            <span className="font-mono px-2 py-0.5 rounded-lg bg-teal-50 text-teal-800 border border-teal-200 text-xs font-bold shrink-0">
                               {cand.evaluation.total_score}/100
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold shrink-0">
+                            <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold shrink-0">
                               Unreadable
                             </span>
                           )}
                         </div>
                         <div className="mt-2.5 flex items-center justify-between">
                           <StatusBadge status={cand.current_status} />
-                          <span className="text-[10px] text-slate-400">{cand.timezone}</span>
+                          <span className="text-[10px] font-medium text-zinc-400">{cand.timezone}</span>
                         </div>
                       </div>
                     );
@@ -952,31 +1008,33 @@ export default function App() {
 
           {/* ================= PAGE 6: ACTIVITY & AUDIT LOG ================= */}
           {adminSection === 'audit' && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs space-y-4">
+            <div className="bg-white border border-zinc-200/80 rounded-2xl p-6 shadow-2xs space-y-4">
               <div>
-                <h2 className="text-base font-bold text-slate-900">System-Wide Audit & Compliance Trail</h2>
-                <p className="text-xs text-slate-500">
+                <h2 className="text-base font-extrabold text-zinc-900 tracking-tight">
+                  System-Wide Audit & Compliance Trail
+                </h2>
+                <p className="text-xs text-zinc-500">
                   Every job creation, candidate application, Agent 1 score, Gate #1 approval, Agent 2 call, Gate #2 review, and Gate #3 email invitation is recorded.
                 </p>
               </div>
-              <div className="divide-y divide-slate-100 max-h-[650px] overflow-y-auto">
+              <div className="divide-y divide-zinc-100 max-h-[650px] overflow-y-auto">
                 {globalAuditLogs.map((log) => (
                   <div key={log.event_id} className="py-3.5 flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                      <div className="text-sm font-bold text-slate-900">
+                      <div className="text-sm font-bold text-zinc-900">
                         #{log.event_id} · {log.action}
                       </div>
-                      <div className="text-xs text-slate-500">
-                        Actor: <strong className="text-slate-700">{log.actor}</strong> ({log.actor_role}) · Entity:{' '}
+                      <div className="text-xs text-zinc-500">
+                        Actor: <strong className="text-zinc-800">{log.actor}</strong> ({log.actor_role}) · Entity:{' '}
                         {log.entity_type} #{log.entity_id}
                       </div>
                       {log.details && Object.keys(log.details).length > 0 && (
-                        <pre className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <pre className="text-[11px] text-zinc-600 bg-zinc-50 p-2.5 rounded-xl border border-zinc-200">
                           {JSON.stringify(log.details, null, 2)}
                         </pre>
                       )}
                     </div>
-                    <span className="text-xs text-slate-400 shrink-0">
+                    <span className="text-xs text-zinc-400 shrink-0">
                       {log.timestamp ? new Date(log.timestamp).toLocaleString() : ''}
                     </span>
                   </div>

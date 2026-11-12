@@ -121,26 +121,26 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/70 backdrop-blur-sm p-4 overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-3xl w-full shadow-2xl overflow-hidden my-6 flex flex-col max-h-[92vh]">
+      <div className="bg-white border border-zinc-200 rounded-3xl max-w-3xl w-full shadow-2xl overflow-hidden my-6 flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="px-7 py-5 bg-slate-900 text-white flex items-center justify-between gap-4 shrink-0">
+        <div className="px-7 py-5 bg-[#0B121E] text-white flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow">
+            <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white shadow">
               <Briefcase className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-white">Edit Job Requisition</h2>
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-400/30">
                   #{requisition.requisition_id}
                 </span>
               </div>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-zinc-300">
                 Update job details, rubric weights, screening questions, or assigned department team lead.
               </p>
             </div>
@@ -149,7 +149,7 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer"
+            className="p-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -165,29 +165,29 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
 
           {/* Section 1: Basic Job Details */}
           <div className="space-y-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-blue-600 border-b border-slate-100 pb-1.5 flex items-center justify-between">
+            <div className="text-xs font-bold uppercase tracking-wider text-teal-600 border-b border-zinc-100 pb-1.5 flex items-center justify-between">
               <span>1. Job Details & Assignment</span>
-              <span className="text-slate-400 font-normal">Active status on Public Careers site</span>
+              <span className="text-zinc-400 font-normal">Active status on Public Careers site</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">Job Title *</label>
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">Job Title *</label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 font-semibold"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 font-semibold"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">Job Status</label>
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">Job Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm font-semibold text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 >
                   <option value="Open">Open (Live for applicants)</option>
                   <option value="Closed">Closed</option>
@@ -198,24 +198,24 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">Department *</label>
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">Department *</label>
                 <input
                   type="text"
                   required
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                   Location & Work Arrangement *
                 </label>
                 <select
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 >
                   <option value="Hybrid (Lahore / Remote)">Hybrid (Lahore / Remote)</option>
                   <option value="Remote (Global / Anywhere)">Remote (Global / Anywhere)</option>
@@ -228,7 +228,7 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                   Minimum Experience Required (Years)
                 </label>
                 <input
@@ -237,13 +237,13 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
                   min="0"
                   value={minExp}
                   onChange={(e) => setMinExp(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-blue-700 font-bold">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-teal-700 font-bold">
                     <UserCheck className="w-3.5 h-3.5" />
                     Assigned Team Lead / Interviewer *
                   </span>
@@ -251,7 +251,7 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
                 <select
                   value={assignedInterviewerId}
                   onChange={(e) => setAssignedInterviewerId(e.target.value)}
-                  className="w-full rounded-xl bg-blue-50/50 border border-blue-200 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-teal-50/50 border border-teal-200 px-3.5 py-2.5 text-sm font-semibold text-zinc-800 focus:bg-white focus:outline-none focus:border-teal-600"
                 >
                   {AVAILABLE_INTERVIEWERS.map((lead) => (
                     <option key={lead.id} value={lead.id}>
@@ -263,7 +263,7 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                 Job Description (JD) *
               </label>
               <textarea
@@ -271,13 +271,13 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
                 required
                 value={jd}
                 onChange={(e) => setJd(e.target.value)}
-                className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                   Must-Have / Required Skills (comma-separated) *
                 </label>
                 <input
@@ -285,19 +285,19 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
                   required
                   value={reqSkills}
                   onChange={(e) => setReqSkills(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-zinc-700 mb-1.5">
                   Preferred / Bonus Skills (comma-separated)
                 </label>
                 <input
                   type="text"
                   value={prefSkills}
                   onChange={(e) => setPrefSkills(e.target.value)}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2.5 text-sm text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
             </div>
@@ -305,7 +305,7 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
 
           {/* Section 2: Agent 1 Scoring Rubric */}
           <div className="space-y-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-blue-600 border-b border-slate-100 pb-1.5 flex items-center justify-between">
+            <div className="text-xs font-bold uppercase tracking-wider text-teal-600 border-b border-zinc-100 pb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <Sliders className="w-4 h-4" />
                 2. Agent 1 Scoring Rubric Weights
@@ -323,82 +323,82 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
 
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Required Skills %</label>
+                <label className="block text-[11px] font-bold text-zinc-700 mb-1">Required Skills %</label>
                 <input
                   type="number"
                   min="0"
                   max="100"
                   value={rubric.required_skills}
                   onChange={(e) => setRubric({ ...rubric, required_skills: e.target.value })}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3 py-2 text-xs font-bold text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Experience %</label>
+                <label className="block text-[11px] font-bold text-zinc-700 mb-1">Experience %</label>
                 <input
                   type="number"
                   min="0"
                   max="100"
                   value={rubric.relevant_experience}
                   onChange={(e) => setRubric({ ...rubric, relevant_experience: e.target.value })}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3 py-2 text-xs font-bold text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Projects %</label>
+                <label className="block text-[11px] font-bold text-zinc-700 mb-1">Projects %</label>
                 <input
                   type="number"
                   min="0"
                   max="100"
                   value={rubric.role_related_projects}
                   onChange={(e) => setRubric({ ...rubric, role_related_projects: e.target.value })}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3 py-2 text-xs font-bold text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Education %</label>
+                <label className="block text-[11px] font-bold text-zinc-700 mb-1">Education %</label>
                 <input
                   type="number"
                   min="0"
                   max="100"
                   value={rubric.education_certifications}
                   onChange={(e) => setRubric({ ...rubric, education_certifications: e.target.value })}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3 py-2 text-xs font-bold text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Other Evidence %</label>
+                <label className="block text-[11px] font-bold text-zinc-700 mb-1">Other Evidence %</label>
                 <input
                   type="number"
                   min="0"
                   max="100"
                   value={rubric.other_job_related_evidence}
                   onChange={(e) => setRubric({ ...rubric, other_job_related_evidence: e.target.value })}
-                  className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                  className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3 py-2 text-xs font-bold text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-zinc-700 mb-1">
                 Rubric Weighting Justification
               </label>
               <input
                 type="text"
                 value={rubric.justification}
                 onChange={(e) => setRubric({ ...rubric, justification: e.target.value })}
-                className="w-full rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                className="w-full rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2 text-xs text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
               />
             </div>
           </div>
 
           {/* Section 3: Agent 2 Approved Screening Questions */}
           <div className="space-y-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-blue-600 border-b border-slate-100 pb-1.5 flex items-center justify-between">
+            <div className="text-xs font-bold uppercase tracking-wider text-teal-600 border-b border-zinc-100 pb-1.5 flex items-center justify-between">
               <span>3. Agent 2 Approved Screening Questions ({questionsList.length})</span>
             </div>
 
@@ -406,9 +406,9 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
               {questionsList.map((q, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200"
+                  className="flex items-center gap-2 p-3 rounded-xl bg-zinc-50 border border-zinc-200"
                 >
-                  <span className="w-6 h-6 rounded-lg bg-blue-100 text-blue-800 text-xs font-bold flex items-center justify-center shrink-0">
+                  <span className="w-6 h-6 rounded-lg bg-teal-100 text-teal-800 text-xs font-bold flex items-center justify-center shrink-0">
                     {idx + 1}
                   </span>
                   <input
@@ -419,12 +419,12 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
                       updated[idx] = e.target.value;
                       setQuestionsList(updated);
                     }}
-                    className="flex-1 bg-transparent text-xs text-slate-900 font-medium focus:outline-none"
+                    className="flex-1 bg-transparent text-xs text-zinc-900 font-medium focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => removeQuestion(idx)}
-                    className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
+                    className="p-1 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -444,12 +444,12 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
                     addQuestion();
                   }
                 }}
-                className="flex-1 rounded-xl bg-slate-50 border border-slate-300 px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
+                className="flex-1 rounded-xl bg-zinc-50 border border-zinc-300 px-3.5 py-2 text-xs text-zinc-900 focus:bg-white focus:outline-none focus:border-teal-600"
               />
               <button
                 type="button"
                 onClick={addQuestion}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-[#0B121E] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add
@@ -458,18 +458,18 @@ export default function EditRequisitionModal({ requisition, isOpen, onClose, onU
           </div>
 
           {/* Modal Footer Actions */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+          <div className="pt-4 border-t border-zinc-100 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl border border-zinc-300 text-zinc-700 text-xs font-semibold hover:bg-zinc-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+              className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {submitting ? 'Saving Changes...' : 'Save Job Changes'}
