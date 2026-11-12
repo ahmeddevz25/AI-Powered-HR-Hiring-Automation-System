@@ -1,5 +1,6 @@
 import os
 import uuid
+import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, UploadFile, File, Form, Header, HTTPException, Response
 from pydantic import BaseModel
@@ -33,6 +34,7 @@ from ..services.audit_service import log_audit_event
 from ..services.gemini_client import is_gemini_configured
 from ..services.seed_service import seed_demo_dataset, ensure_sample_files_on_disk
 from ..services.email_service import send_email_message, is_smtp_configured
+from ..services.conversational_guard import evaluate_screening_response
 from ..agents.scoring_agent import score_resume_with_agent1
 from ..agents.screening_agent import run_screening_call_agent2, filter_approved_questions
 from ..agents.scheduling_agent import (
@@ -617,45 +619,55 @@ def record_human_shortlist_decision(
         cand.current_status = "Approved for Screening"
         cand.status_reason = f"Human Gate #1 ({payload.decision} by {payload.actor}): {payload.reason}"
 
-        # Dispatch automated Screening Invitation Email to Candidate via Mailtrap/SMTP
-        screening_url = f"http://localhost:5173/screening-call?candidate_id={cand.candidate_id}"
-        role_title = cand.requisition.title if cand.requisition else "Applied Position"
-        email_subject = f"Next Steps: AI Voice Screening Invitation for {role_title} — TalentSense"
-        email_body = (
-            f"Dear {cand.name},\n\n"
-            f"Congratulations! Our recruiting team has reviewed your resume and profile for the '{role_title}' position and shortlisted your application.\n\n"
-            f"As the next step in our hiring process, you are invited to participate in a preliminary 5-minute interactive AI Voice Screening Call.\n\n"
-            f"👉 Click here to start your screening call:\n"
-            f"{screening_url}\n\n"
-            f"What to Expect:\n"
-            f"• Our AI Recruitment Assistant will ask you 3–4 role-related questions.\n"
-            f"• You can listen to the questions spoken aloud and speak your answers using your microphone.\n"
-            f"• Your spoken answers are transcribed in real time and recorded for our HR team to review.\n"
-            f"• Duration: Approximately 5 minutes.\n"
-            f"• Requirements: A quiet room and a working microphone.\n\n"
-            f"If you encounter any technical issues or need accommodations, please reply to this email.\n\n"
-            f"Best regards,\n"
-            f"TalentSense Recruiting Team\n"
-            f"recruiting@talentsense.ai"
-        )
-        is_sent, prov_ref = send_email_message(
-            to_email=cand.email,
-            subject=email_subject,
-            body_text=email_body,
-            recipient_name=cand.name,
+        # Deduplication check: do not send if an invite email was already dispatched to this candidate within 60 seconds
+        recent_invite = (
+            db.query(CommunicationLog)
+            .filter(
+                CommunicationLog.candidate_id == cand.candidate_id,
+                CommunicationLog.channel == "Email (Screening Invite)",
+                CommunicationLog.sent_at >= utcnow() - datetime.timedelta(seconds=60),
+            )
+            .first()
         )
 
-        comm = CommunicationLog(
-            candidate_id=cand.candidate_id,
-            channel="Email (Screening Invite)",
-            template_version="v1.0-screening-invite",
-            subject=email_subject,
-            body_preview=email_body[:300],
-            delivery_status="Delivered" if is_sent else "Pending",
-            provider_reference=prov_ref,
-            idempotency_key=f"SCREEN-INV-{cand.candidate_id}-{uuid.uuid4().hex[:6]}",
-        )
-        db.add(comm)
+        if not recent_invite:
+            # Dispatch automated Screening Invitation Email to Candidate via Mailtrap/SMTP
+            screening_url = f"http://localhost:5173/screening-call?candidate_id={cand.candidate_id}"
+            role_title = cand.requisition.title if cand.requisition else "Applied Position"
+            email_subject = f"Next Steps: AI Voice Screening Invitation for {role_title} — TalentSense"
+            email_body = (
+                f"Dear {cand.name},\n\n"
+                f"Congratulations! Our recruiting team has reviewed your application for the '{role_title}' position and shortlisted your profile.\n\n"
+                f"As the next step, you are invited to participate in a quick 3-minute interactive AI Voice Screening Call.\n\n"
+                f"👉 Click here to start your screening call:\n"
+                f"{screening_url}\n\n"
+                f"What to Expect:\n"
+                f"• Our AI assistant will ask 2–3 short, easy questions.\n"
+                f"• You can listen to the questions spoken aloud and speak your answers using your microphone.\n"
+                f"• Estimated duration: ~3 minutes.\n"
+                f"• Requirements: A quiet room and a working microphone.\n\n"
+                f"Best regards,\n"
+                f"TalentSense Recruiting Team\n"
+                f"recruiting@talentsense.ai"
+            )
+            is_sent, prov_ref = send_email_message(
+                to_email=cand.email,
+                subject=email_subject,
+                body_text=email_body,
+                recipient_name=cand.name,
+            )
+
+            comm = CommunicationLog(
+                candidate_id=cand.candidate_id,
+                channel="Email (Screening Invite)",
+                template_version="v1.0-screening-invite",
+                subject=email_subject,
+                body_preview=email_body[:300],
+                delivery_status="Delivered" if is_sent else "Pending",
+                provider_reference=prov_ref,
+                idempotency_key=f"SCREEN-INV-{cand.candidate_id}-{uuid.uuid4().hex[:6]}",
+            )
+            db.add(comm)
     elif payload.decision == "Declined":
         cand.current_status = "Closed"
         cand.status_reason = f"Closed at Shortlist Review by {payload.actor}: {payload.reason}"
@@ -705,19 +717,37 @@ def send_screening_invite_email(
     if not cand:
         raise HTTPException(status_code=404, detail="Candidate not found.")
 
+    # Deduplication check: if invite email was dispatched in last 30 seconds, return existing status safely
+    recent_invite = (
+        db.query(CommunicationLog)
+        .filter(
+            CommunicationLog.candidate_id == cand.candidate_id,
+            CommunicationLog.channel == "Email (Screening Invite)",
+            CommunicationLog.sent_at >= utcnow() - datetime.timedelta(seconds=30),
+        )
+        .first()
+    )
+    if recent_invite:
+        return {
+            "status": "already_sent",
+            "message": "Screening invitation email was already dispatched recently to prevent duplicate sends.",
+            "provider_reference": recent_invite.provider_reference,
+            "candidate_id": cand.candidate_id,
+        }
+
     screening_url = f"http://localhost:5173/screening-call?candidate_id={cand.candidate_id}"
     role_title = cand.requisition.title if cand.requisition else "Applied Position"
     email_subject = f"Next Steps: AI Voice Screening Invitation for {role_title} — TalentSense"
     email_body = (
         f"Dear {cand.name},\n\n"
         f"Congratulations! Our recruiting team has reviewed your application for the '{role_title}' position and shortlisted your profile.\n\n"
-        f"As the next step, you are invited to participate in a preliminary 5-minute interactive AI Voice Screening Call.\n\n"
+        f"As the next step, you are invited to participate in a quick 3-minute interactive AI Voice Screening Call.\n\n"
         f"👉 Click here to start your screening call:\n"
         f"{screening_url}\n\n"
         f"What to Expect:\n"
-        f"• Our AI assistant will ask 3–4 role-related questions.\n"
+        f"• Our AI assistant will ask 2–3 short, easy questions.\n"
         f"• You can listen to the questions spoken aloud and speak your answers using your microphone.\n"
-        f"• Estimated duration: ~5 minutes.\n"
+        f"• Estimated duration: ~3 minutes.\n"
         f"• Requirements: A quiet room and a working microphone.\n\n"
         f"Best regards,\n"
         f"TalentSense Recruiting Team\n"
@@ -1773,6 +1803,28 @@ def speak_with_elevenlabs(payload: TTSSpeakRequest):
     if not ok:
         raise HTTPException(status_code=503, detail=msg)
     return Response(content=audio_bytes, media_type="audio/mpeg")
+
+
+class ScreeningResponseEvaluationRequest(BaseModel):
+    job_title: str
+    current_question: str
+    step_index: int
+    candidate_input: str
+
+
+@router.post("/screening/evaluate-response")
+def evaluate_screening_candidate_response(payload: ScreeningResponseEvaluationRequest):
+    """
+    Evaluates whether the candidate answered the interview question or gave an off-topic / irrelevant
+    response. If off-topic, returns polite informative answer to their query and redirects back to original question.
+    """
+    return evaluate_screening_response(
+        job_title=payload.job_title,
+        current_question=payload.current_question,
+        step_index=payload.step_index,
+        candidate_input=payload.candidate_input,
+    )
+
 
 
 

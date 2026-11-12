@@ -469,21 +469,47 @@ export default function CandidateDetailPanel({
                         </span>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        {onSendScreeningInvite && (
-                          <button
-                            type="button"
-                            disabled={busy}
-                            onClick={() =>
-                              wrapAction(
-                                () => onSendScreeningInvite(candidate.candidate_id),
-                                `Screening invitation email dispatched to ${candidate.email} via Mailtrap!`
-                              )
-                            }
-                            className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
-                          >
-                            <Mail className="w-3 h-3" />
-                            Send / Resend Email (Mailtrap)
-                          </button>
+                        {candidate.communications?.some((c) => c.channel?.includes('Screening Invite')) ? (
+                          <>
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100/90 px-2.5 py-1 rounded-lg border border-emerald-300">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              Invite Delivered (Mailtrap)
+                            </span>
+                            {onSendScreeningInvite && (
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() =>
+                                  wrapAction(
+                                    () => onSendScreeningInvite(candidate.candidate_id),
+                                    `Screening invitation email resent to ${candidate.email} via Mailtrap!`
+                                  )
+                                }
+                                className="px-2 py-1 rounded-lg bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 text-[11px] font-medium flex items-center gap-1 cursor-pointer"
+                                title="Resend invite email"
+                              >
+                                <Mail className="w-3 h-3" />
+                                Resend
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          onSendScreeningInvite && (
+                            <button
+                              type="button"
+                              disabled={busy}
+                              onClick={() =>
+                                wrapAction(
+                                  () => onSendScreeningInvite(candidate.candidate_id),
+                                  `Screening invitation email dispatched to ${candidate.email} via Mailtrap!`
+                                )
+                              }
+                              className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
+                            >
+                              <Mail className="w-3 h-3" />
+                              Send Screening Invite (Mailtrap)
+                            </button>
+                          )
                         )}
                         <button
                           type="button"
@@ -528,21 +554,47 @@ export default function CandidateDetailPanel({
                 </span>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {onSendScreeningInvite && (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() =>
-                      wrapAction(
-                        () => onSendScreeningInvite(candidate.candidate_id),
-                        `Screening invitation email dispatched to ${candidate.email} via Mailtrap!`
-                      )
-                    }
-                    className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
-                  >
-                    <Mail className="w-3 h-3" />
-                    Send / Resend Screening Invite (Mailtrap)
-                  </button>
+                {candidate.communications?.some((c) => c.channel?.includes('Screening Invite')) ? (
+                  <>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100/90 px-2.5 py-1 rounded-lg border border-emerald-300">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      Invite Delivered (Mailtrap)
+                    </span>
+                    {onSendScreeningInvite && (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() =>
+                          wrapAction(
+                            () => onSendScreeningInvite(candidate.candidate_id),
+                            `Screening invitation email resent to ${candidate.email} via Mailtrap!`
+                          )
+                        }
+                        className="px-2 py-1 rounded-lg bg-white border border-slate-300 text-slate-600 hover:bg-slate-100 text-[11px] font-medium flex items-center gap-1 cursor-pointer"
+                        title="Resend invite email"
+                      >
+                        <Mail className="w-3 h-3" />
+                        Resend
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  onSendScreeningInvite && (
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() =>
+                        wrapAction(
+                          () => onSendScreeningInvite(candidate.candidate_id),
+                          `Screening invitation email dispatched to ${candidate.email} via Mailtrap!`
+                        )
+                      }
+                      className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Mail className="w-3 h-3" />
+                      Send Screening Invite (Mailtrap)
+                    </button>
+                  )
                 )}
                 <button
                   type="button"

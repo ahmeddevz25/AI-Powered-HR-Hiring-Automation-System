@@ -180,10 +180,9 @@ def seed_demo_dataset(db: Session, actor: str = "HR Recruiter (Demo Seeder)") ->
         required_skills=["Python", "Machine Learning", "FastAPI", "SQL"],
         preferred_skills=["Docker", "LangChain", "RAG", "PyTorch", "AWS"],
         screening_questions=[
-            "Could you walk us through your hands-on experience with Python, FastAPI, and Machine Learning in production?",
-            "Tell us about a recent AI/ML or RAG project you built and how you evaluated its accuracy and reliability.",
-            "Are you comfortable with our Hybrid (Lahore / Remote) work arrangement?",
-            "What is your current notice period and your preferred time window next week for a 45-minute technical interview?",
+            "Could you tell me a little bit about yourself and an AI or Python project you worked on recently?",
+            "Are you comfortable working in a hybrid setup in Lahore or remotely with our engineering team?",
+            "What is your notice period, and what days or times next week work best for a short chat with our team lead?",
         ],
         rubric={
             "required_skills": 40.0,
@@ -229,10 +228,9 @@ def seed_demo_dataset(db: Session, actor: str = "HR Recruiter (Demo Seeder)") ->
             required_skills=["React", "Python", "FastAPI", "SQL"],
             preferred_skills=["Tailwind CSS", "TypeScript", "Docker", "REST APIs"],
             screening_questions=[
-                "Describe a full-stack web application you built using React and a Python backend.",
-                "How do you handle state management, API error recovery, and role-based access in production?",
-                "Are you comfortable working in a Hybrid / Remote product team across Pakistan timezones?",
-                "What is your notice period and preferred interview availability next week?",
+                "Could you tell me a little bit about yourself and a full-stack project you recently built with React or web backend APIs?",
+                "Are you comfortable working in a hybrid setup or remotely with our product team?",
+                "What is your notice period, and what days or times next week work best for a short interview with our team lead?",
             ],
             rubric={
                 "required_skills": 40.0,
@@ -261,10 +259,9 @@ def seed_demo_dataset(db: Session, actor: str = "HR Recruiter (Demo Seeder)") ->
             required_skills=["Python", "NLP", "Large Language Models", "Prompt Engineering"],
             preferred_skills=["LangChain", "Gemini API", "RAG", "FastAPI"],
             screening_questions=[
-                "What experience do you have designing structured outputs and guardrails for LLMs?",
-                "How do you prevent prompt injection and hallucinations in multi-agent systems?",
-                "Tell us about a conversational AI or NLP pipeline you deployed and how you measured quality.",
-                "What is your availability for a 45-minute technical interview next week?",
+                "Can you tell us about an NLP, LLM, or AI project you worked on recently?",
+                "Are you comfortable working in our hybrid or remote team arrangement?",
+                "What is your notice period and preferred interview timing for next week?",
             ],
             rubric={
                 "required_skills": 45.0,
@@ -293,10 +290,9 @@ def seed_demo_dataset(db: Session, actor: str = "HR Recruiter (Demo Seeder)") ->
             required_skills=["Python", "FastAPI", "PostgreSQL", "SQL"],
             preferred_skills=["Docker", "Redis", "Celery", "AWS", "Pytest"],
             screening_questions=[
-                "Walk us through the largest FastAPI or Python backend system you have designed in production.",
-                "How do you ensure idempotency and transaction safety when integrating external email or payment APIs?",
-                "How do you optimize slow PostgreSQL queries and manage schema migrations?",
-                "What is your current notice period and availability for a technical architecture interview?",
+                "Can you briefly walk us through a backend API or database project you designed?",
+                "Are you comfortable collaborating in a remote or hybrid engineering team?",
+                "What is your notice period and availability for an interview next week?",
             ],
             rubric={
                 "required_skills": 40.0,
@@ -325,10 +321,9 @@ def seed_demo_dataset(db: Session, actor: str = "HR Recruiter (Demo Seeder)") ->
             required_skills=["Python", "Machine Learning", "SQL", "Scikit-Learn"],
             preferred_skills=["Pandas", "PyTorch", "Data Visualization", "FastAPI"],
             screening_questions=[
-                "Describe a predictive modeling or ranking problem you solved from raw data to deployment.",
-                "How do you evaluate model fairness, bias, and explainability for non-technical stakeholders?",
-                "How comfortable are you writing complex SQL queries for feature extraction?",
-                "What is your notice period and preferred interview window next week?",
+                "Can you describe a data analysis or machine learning model you built recently?",
+                "Are you comfortable with our hybrid or remote data science workflow?",
+                "What is your notice period and preferred interview schedule next week?",
             ],
             rubric={
                 "required_skills": 35.0,
@@ -357,9 +352,9 @@ def seed_demo_dataset(db: Session, actor: str = "HR Recruiter (Demo Seeder)") ->
             required_skills=["Docker", "Python", "AWS", "CI/CD"],
             preferred_skills=["Kubernetes", "Terraform", "FastAPI", "PostgreSQL", "Linux"],
             screening_questions=[
-                "Tell us about your experience containerizing and deploying Python/ML services using Docker and AWS.",
-                "How do you monitor latency, token usage, and failure rates for LLM-backed microservices?",
-                "What is your current notice period and preferred interview slot next week?",
+                "Can you describe your experience deploying applications using Docker or cloud tools?",
+                "Are you comfortable with our remote or hybrid engineering setup?",
+                "What is your notice period and preferred time for an interview next week?",
             ],
             rubric={
                 "required_skills": 45.0,

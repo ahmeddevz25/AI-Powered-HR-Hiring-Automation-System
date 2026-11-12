@@ -80,6 +80,8 @@ export const api = {
     request(`/candidates/${candidateId}/screening/send-invite-email`, { method: 'POST' }, role),
   getScreeningBrief: (candidateId) =>
     request(`/public/candidates/${candidateId}/screening-brief`),
+  evaluateScreeningResponse: (payload) =>
+    request('/screening/evaluate-response', { method: 'POST', body: JSON.stringify(payload) }),
   getSmtpStatus: () =>
     request('/settings/smtp-status'),
   testSmtp: (toEmail = 'test@example.com') =>

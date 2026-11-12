@@ -32,11 +32,9 @@ def filter_approved_questions(questions: List[str], job_title: str) -> List[str]
     questions (Section 8 & 13).
     """
     default_questions = [
-        f"Could you briefly walk us through your hands-on experience relevant to the {job_title} role?",
-        "Which production or academic AI/software projects have you built recently, and what was your direct role?",
-        "Are you comfortable with the work arrangement (Hybrid / Remote) and core technical stack for this position?",
-        "What is your current notice period and your preferred time windows for a technical interview next week?",
-        "Do you have any questions for our recruiting team about the role or process?",
+        f"Can you tell us about a project you recently built related to the {job_title} role?",
+        "Are you comfortable with our hybrid or remote work arrangement?",
+        "What is your notice period and preferred time for an interview next week?",
     ]
     raw_list = questions if questions else default_questions
     safe_questions = []
